@@ -18,8 +18,8 @@ squirrel('node-twitch-irc', function twitchIrcLoaded(err, irc) {
             // "Subscribe" event.
             event.on("subscribe", function onSubscribe(channel, username, resub) {
                 io.sockets.json.send({
-                    bundleName: 'sublist',
-                    messageName: 'sub',
+                    bundleName: 'eol-sublistener',
+                    messageName: 'subscriber',
                     content: {
                         name: username,
                         resub: resub
@@ -29,24 +29,12 @@ squirrel('node-twitch-irc', function twitchIrcLoaded(err, irc) {
 
             // "Connected" event.
             event.on("connected", function onConnected() {
-                console.log('[sublist] Listening for subscribers...')
-            });
-
-            event.on("chat", function (user, channel, message) {
-                console.log("got chat from " + user.username + ": " + message);
-                io.sockets.json.send({
-                    bundleName: 'sublist',
-                    messageName: 'subscriber',
-                    content: {
-                        name: user.username,
-                        resub: true
-                    }
-                });
+                console.log('[eol-sublistener] Listening for subscribers...')
             });
 
             // "Disconnected" event.
             event.on("disconnected", function onDisconnected(reason) {
-                console.log('[sublist] DISCONNECTED: '+reason);
+                console.log('[eol-sublistener] DISCONNECTED: '+reason);
             });
         } else  {
             console.log(err);

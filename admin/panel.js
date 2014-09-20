@@ -1,7 +1,7 @@
 $(function () {
     $('#sublist_clearall').click(function() { });
 
-    nodecg.listenFor('subscriber', 'sublist', addSub);
+    nodecg.listenFor('subscriber', addSub);
 
     var button = '<button type="button" data-dismiss="alert" class="close"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>'
     function addSub(data) {
