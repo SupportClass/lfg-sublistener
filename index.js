@@ -1,20 +1,17 @@
 var express = require('express'),
     app = module.exports = express(),
     io = require('../../server.js'),
+    fs = require('fs'),
     squirrel = require('squirrel');
+
+var cfgPath = __dirname + '/config.json';
+if (!fs.existsSync(cfgPath)) {
+    throw new Error('[eol-sublistener] config.json was not present in bundles/eol-sublistener, aborting!');
+}
 
 // Lazy-load and lazy-install the node-twitch-irc npm package if necessary
 squirrel('node-twitch-irc', function twitchIrcLoaded(err, irc) {
-    var ircConfig = {
-        autoreconnect: true,
-        channels: ['langeh'],
-        server: 'irc.twitch.tv',
-        port: 6667,
-        nickname: 'chrishanel',
-        oauth: 'oauth:3vh50cexpubd9dwrwt3tzerpyvsq7dg',
-        debug: false,
-        twitchclient: 3
-    };
+    var ircConfig = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
 
     var client = new irc.connect(ircConfig, function(err, event) {
         if (!err) {
