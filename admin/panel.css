@@ -1,17 +1,9 @@
-#sublist .control-label {
-  font-size: 12px;
-  font-weight: 700;
-  color: #959595;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-top: 8px;
-}
-#sublist .sub {
+#eol-sublistener .sub {
   padding: 4px 35px 4px 6px;
   margin-bottom: 2px;
   overflow-wrap: break-word;
 }
-#sublist_list {
+#eol-sublistener_list {
   max-height: 250px;
   overflow-y: scroll;
   margin-bottom: 4px;

@@ -1,5 +1,5 @@
 $(function () {
-    $('#sublist_clearall').click(function() { });
+    $('#eol-sublistener_clearall').click(function() { });
 
     nodecg.listenFor('subscriber', addSub);
 
@@ -8,10 +8,10 @@ $(function () {
         var alert = '<div role="alert" class="alert alert-dismissible ' + (data.resub ? 'bg-primary' : 'alert-info') + ' sub">' + button +
             '<div style="white-space: pre;"></div><strong>' + data.name +'</strong>' + (data.resub ? ' - Resub' : ' - New') + '</div></div>';
 
-        $('#sublist_list').prepend(alert);
+        $('#eol-sublistener_list').prepend(alert);
     }
 
-    $('#sublist_clearall').click(function() {
+    $('#eol-sublistener_clearall').click(function() {
        $('#sublist .sub').remove();
     });
 });
