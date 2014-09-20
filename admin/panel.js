@@ -8,7 +8,7 @@ $(function () {
         var alert = '<div role="alert" class="alert alert-dismissible ' + (data.resub ? 'bg-primary' : 'alert-info') + ' sub">' + button +
             '<div style="white-space: pre;"></div><strong>' + data.name +'</strong>' + (data.resub ? ' - Resub' : ' - New') + '</div></div>';
 
-        $('#thelist').prepend(alert);
+        $('#sublist_list').prepend(alert);
     }
 
     $('#sublist_clearall').click(function() {
