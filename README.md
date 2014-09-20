@@ -13,11 +13,11 @@ Upon hearing one, it emits a NodeCG API message that other bundles can listen to
 ```
 {
     "autoreconnect": true,
-    "channels": ["langeh"],
+    "channels": ["channelname"],
     "server": "irc.twitch.tv",
     "port": 6667,
-    "nickname": "chrishanel",
-    "oauth": "oauth:3vh50cexpubd9dwrwt3tzerpyvsq7dg",
+    "nickname": "username",
+    "oauth": "oauth:tokenhere",
     "debug": false,
     "twitchclient": 3
 }
@@ -29,7 +29,7 @@ If you simply want a list of recent subs on your dashboard, you are done.
 
 If you would like to use this data in another bundle, add the following code to your view/panel:
 ```
-nodecg.listenFor('subscriber', 'sublist', callback);
+nodecg.listenFor('subscriber', 'eol-sublistener', callback);
 ```
 ... where 'callback' is the name of a function with the signature `function callback(data)`
 
