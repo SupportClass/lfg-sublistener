@@ -12,6 +12,6 @@ $(function () {
     }
 
     $('#eol-sublistener_clearall').click(function() {
-       $('#sublist .sub').remove();
+       $('#eol-sublistener_list .sub').remove();
     });
 });
