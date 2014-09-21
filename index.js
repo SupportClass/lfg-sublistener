@@ -8,11 +8,10 @@ var cfgPath = __dirname + '/config.json';
 if (!fs.existsSync(cfgPath)) {
     throw new Error('[eol-sublistener] config.json was not present in bundles/eol-sublistener, aborting!');
 }
+var ircConfig = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
 
 // Lazy-load and lazy-install the node-twitch-irc npm package if necessary
 squirrel('node-twitch-irc', function twitchIrcLoaded(err, irc) {
-    var ircConfig = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
-
     var client = new irc.connect(ircConfig, function(err, event) {
         if (!err) {
             // "Subscribe" event.
