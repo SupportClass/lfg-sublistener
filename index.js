@@ -2,7 +2,14 @@ var express = require('express'),
     app = module.exports = express(),
     io = require('../../server.js'),
     fs = require('fs'),
-    squirrel = require('squirrel');
+    squirrel = require('squirrel'),
+    EventEmitter = require('events').EventEmitter,
+    emitter = new EventEmitter();
+
+// To let another bundle's index.js take advantage of sublistener, we must export an event listener.
+// Socket.io dosn't work for inter-index.js communciation, because broadcasts don't loopback.
+// AND, since we're already exporting an express app, we have to export this emitter as a property so as not to interfere
+module.exports.emitter = emitter;
 
 var cfgPath = __dirname + '/config.json';
 if (!fs.existsSync(cfgPath)) {
@@ -16,14 +23,13 @@ squirrel('node-twitch-irc', function twitchIrcLoaded(err, irc) {
         if (!err) {
             // "Subscribe" event.
             event.on("subscribe", function onSubscribe(channel, username, resub) {
+                var content = { name: username, resub: resub };
                 io.sockets.json.send({
                     bundleName: 'eol-sublistener',
                     messageName: 'subscriber',
-                    content: {
-                        name: username,
-                        resub: resub
-                    }
+                    content: content
                 });
+                emitter.emit('subscriber', content);
             });
 
             // "Connected" event.
