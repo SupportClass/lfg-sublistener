@@ -25,14 +25,17 @@ Upon hearing one, it emits a NodeCG API message that other bundles can listen to
 
 ## Usage
 
+### Dashboard Panel
 If you simply want a list of recent subs on your dashboard, you are done.
 
+### Use in other bundles' view pages and dashboard panels
 If you would like to use this data in another bundle, add the following code to your view/panel:
 ```
 nodecg.listenFor('subscriber', 'eol-sublistener', callback);
 ```
 ... where 'callback' is the name of a function with the signature `function callback(data)`
 
+### Use in other bundles' index.js files
 If you want to use subscriber events in another bundle's `index.js`, add the following code:
 ```
 var sublistener = require('../eol-sublistener').emitter;
