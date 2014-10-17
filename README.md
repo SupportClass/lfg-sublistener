@@ -33,3 +33,15 @@ nodecg.listenFor('subscriber', 'eol-sublistener', callback);
 ```
 ... where 'callback' is the name of a function with the signature `function callback(data)`
 
+If you want to use subscriber events in another bundle's `index.js`, add the following code:
+```
+var sublistener = require('../eol-sublistener').emitter;
+var events = require('events');
+
+sublistener.on('subscriber', function(data){
+    // do work
+    // data.name = Twitch username of subscriber
+    // data.resub = Boolean
+});
+```
+
