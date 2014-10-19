@@ -34,7 +34,7 @@ squirrel('node-twitch-irc', function twitchIrcLoaded(err, irc) {
 
             // "Connected" event.
             event.on("connected", function onConnected() {
-                console.log('[eol-sublistener] Listening for subscribers...')
+                console.log('[eol-sublistener] Listening for subscribers on', ircConfig.channels)
             });
 
             // "Disconnected" event.
