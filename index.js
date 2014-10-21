@@ -36,7 +36,7 @@ squirrel('node-twitch-irc', function twitchIrcLoaded(err, irc) {
             // Uses chat events as a substitute for subscriber events
             if (ircConfig.testmode) {
                 event.on("chat", function onChat(user, channel, message) {
-                    var content = { name: user.username, resub: false };
+                    var content = { name: message, resub: false };
                     io.sockets.json.send({
                         bundleName: 'eol-sublistener',
                         messageName: 'subscriber',
