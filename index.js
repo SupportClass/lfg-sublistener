@@ -32,6 +32,21 @@ squirrel('node-twitch-irc', function twitchIrcLoaded(err, irc) {
                 emitter.emit('subscriber', content);
             });
 
+            // For testing purposes
+            // Uses chat events as a substitute for subscriber events
+            if (ircConfig.testmode) {
+                event.on("chat", function onChat(user, channel, message) {
+                    var content = { name: user.username, resub: false };
+                    io.sockets.json.send({
+                        bundleName: 'eol-sublistener',
+                        messageName: 'subscriber',
+                        content: content
+                    });
+                    emitter.emit('subscriber', content);
+                });
+                console.warn('[eol-sublistener] Testing mode! Chat events will trigger sub notifications');
+            }
+
             // "Connected" event.
             event.on("connected", function onConnected() {
                 console.log('[eol-sublistener] Listening for subscribers on', ircConfig.channels)
