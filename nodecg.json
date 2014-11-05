@@ -1,11 +1,15 @@
 {
     "name": "eol-sublistener",
     "version": "0.0.1",
-    "nodecgDependency": "~0.0.1",
+    "nodecgDependency": "^0.1.0",
     "homepage": "http://alexvan.camp/",
     "authors": [
         "Alex Van Camp <email@alexvan.camp>"
     ],
     "description": "Tells other bundles when someone subscribes. Displays a list of recent subs on your dashboard. Has no view page.",
-    "license": "Commercial"
+    "license": "Commercial",
+    "extension": {
+        "express": false,
+        "path": "index.js"
+    }
 }

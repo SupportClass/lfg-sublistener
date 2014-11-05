@@ -1,6 +1,4 @@
-var express = require('express'),
-    app = module.exports = express(),
-    io = require('../../server.js'),
+var io = require('../../server.js'),
     fs = require('fs'),
     squirrel = require('squirrel'),
     EventEmitter = require('events').EventEmitter,
@@ -8,8 +6,7 @@ var express = require('express'),
 
 // To let another bundle's index.js take advantage of sublistener, we must export an event listener.
 // Socket.io dosn't work for inter-index.js communciation, because broadcasts don't loopback.
-// AND, since we're already exporting an express app, we have to export this emitter as a property so as not to interfere
-module.exports.emitter = emitter;
+module.exports = emitter;
 
 var cfgPath = __dirname + '/config.json';
 if (!fs.existsSync(cfgPath)) {
