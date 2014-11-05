@@ -1,7 +1,7 @@
 {
     "name": "eol-sublistener",
     "version": "0.0.1",
-    "nodecgDependency": "^0.1.0",
+    "nodecgDependency": "~0.1.0",
     "homepage": "http://alexvan.camp/",
     "authors": [
         "Alex Van Camp <email@alexvan.camp>"
