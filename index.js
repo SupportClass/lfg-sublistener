@@ -31,23 +31,25 @@ squirrel('node-twitch-irc', function twitchIrcLoaded(err, irc) {
 
             // For testing purposes
             // Uses chat events as a substitute for subscriber events
-            event.on("chat", function onChat(user, channel, message) {
-                if (isBroadcaster(user, channel) || isModerator(user)) {
-                    if (message.indexOf('!sendsub') === 0 && message.indexOf(' ') > 0) {
-                        var name = message.split(' ',2)[1];
-                        if (name == false)
-                            return;
+            if (ircConfig.chatevents) {
+                event.on("chat", function onChat(user, channel, message) {
+                    if (isBroadcaster(user, channel) || isModerator(user)) {
+                        if (message.indexOf('!sendsub') === 0 && message.indexOf(' ') > 0) {
+                            var name = message.split(' ',2)[1];
+                            if (name == false)
+                                return;
 
-                        var content = { name: name, resub: false };
-                        io.sockets.json.send({
-                            bundleName: 'eol-sublistener',
-                            messageName: 'subscriber',
-                            content: content
-                        });
-                        emitter.emit('subscriber', content);
+                            var content = { name: name, resub: false };
+                            io.sockets.json.send({
+                                bundleName: 'eol-sublistener',
+                                messageName: 'subscriber',
+                                content: content
+                            });
+                            emitter.emit('subscriber', content);
+                        }
                     }
-                }
-            });
+                });
+            }
 
             // "Connected" event.
             event.on("connected", function onConnected() {
