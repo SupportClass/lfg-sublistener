@@ -32,6 +32,7 @@ squirrel('node-twitch-irc', function twitchIrcLoaded(err, irc) {
             // For testing purposes
             // Uses chat events as a substitute for subscriber events
             if (ircConfig.chatevents) {
+                console.warn('[eol-sublistener] WARNING! Chat events are on, this may cause significant CPU usage');
                 event.on("chat", function onChat(user, channel, message) {
                     if (isBroadcaster(user, channel) || isModerator(user)) {
                         if (message.indexOf('!sendsub') === 0 && message.indexOf(' ') > 0) {
