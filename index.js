@@ -31,18 +31,23 @@ squirrel('node-twitch-irc', function twitchIrcLoaded(err, irc) {
 
             // For testing purposes
             // Uses chat events as a substitute for subscriber events
-            if (ircConfig.testmode) {
-                event.on("chat", function onChat(user, channel, message) {
-                    var content = { name: message, resub: false };
-                    io.sockets.json.send({
-                        bundleName: 'eol-sublistener',
-                        messageName: 'subscriber',
-                        content: content
-                    });
-                    emitter.emit('subscriber', content);
-                });
-                console.warn('[eol-sublistener] Testing mode! Chat events will trigger sub notifications');
-            }
+            event.on("chat", function onChat(user, channel, message) {
+                if (isBroadcaster(user, channel) || isModerator(user)) {
+                    if (message.indexOf('!sendsub') === 0 && message.indexOf(' ') > 0) {
+                        var name = message.split(' ',2)[1];
+                        if (name == false)
+                            return;
+
+                        var content = { name: name, resub: false };
+                        io.sockets.json.send({
+                            bundleName: 'eol-sublistener',
+                            messageName: 'subscriber',
+                            content: content
+                        });
+                        emitter.emit('subscriber', content);
+                    }
+                }
+            });
 
             // "Connected" event.
             event.on("connected", function onConnected() {
@@ -58,3 +63,12 @@ squirrel('node-twitch-irc', function twitchIrcLoaded(err, irc) {
         }
     });
 });
+
+function isBroadcaster(user, channel) {
+    // Remove the leading "#" from channel
+    return user.username === channel.slice(1);
+}
+
+function isModerator(user) {
+    return user.special.indexOf('moderator') >= 0;
+}
