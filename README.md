@@ -13,6 +13,7 @@ Also displays recent subscribers on the dashboard.
 
 ### Config Example
 ```
+#!json
 {
     "autoreconnect": true,
     "channels": ["channelname"],
@@ -34,6 +35,7 @@ If you simply want a list of recent subs on your dashboard, you are done.
 ### Use in other bundles' view pages and dashboard panels
 If you would like to use this data in another bundle, add the following code to your view/panel:
 ```
+#!javascript
 nodecg.listenFor('subscriber', 'eol-sublistener', callback);
 ```
 ... where 'callback' is the name of a function with the signature `function callback(data)`
@@ -41,6 +43,7 @@ nodecg.listenFor('subscriber', 'eol-sublistener', callback);
 ### Use in other bundles' extensions
 If you want to use subscriber events in another bundle's extension, add the following code:
 ```
+#!javascript
 var sublistener = require('../eol-sublistener');
 
 sublistener.on('subscriber', function(data) {
