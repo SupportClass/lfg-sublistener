@@ -1,3 +1,5 @@
+'use strict';
+
 var io = require('../../server.js'),
     fs = require('fs'),
     squirrel = require('squirrel'),
