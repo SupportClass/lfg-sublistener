@@ -13,9 +13,11 @@ module.exports = emitter;
 
 var cfgPath = __dirname + '/config.json';
 if (!fs.existsSync(cfgPath)) {
-    throw new Error('[eol-sublistener] config.json was not present in bundles/eol-sublistener, aborting!');
+    throw new Error('[eol-sublistener] config.json was not present in bundles/eol-sublistener, aborting');
 }
 var ircConfig = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
+
+var lastSub = {};
 
 // Lazy-load and lazy-install the node-twitch-irc npm package if necessary
 squirrel('twitch-irc', function twitchIrcLoaded(err, irc) {
@@ -29,13 +31,9 @@ squirrel('twitch-irc', function twitchIrcLoaded(err, irc) {
     });
 
     client.addListener('subscription', function onSubscription(channel, username) {
-        var content = { name: username, resub: false }; //resub not implemented
-        io.sockets.json.send({
-            bundleName: 'eol-sublistener',
-            messageName: 'subscriber',
-            content: content
-        });
-        emitter.emit('subscriber', content);
+        if (!isDuplicate(arg, channel)) {
+            acceptSubscription(username)
+        }
     });
 
     if (ircConfig.chatevents) {
@@ -49,13 +47,18 @@ squirrel('twitch-irc', function twitchIrcLoaded(err, irc) {
             var arg = parts.length > 1 ? parts[1] : null;
 
             if (cmd === '!sendsub' && arg) {
-                var content = { name: arg, resub: false };
-                io.sockets.json.send({
-                    bundleName: 'eol-sublistener',
-                    messageName: 'subscriber',
-                    content: content
-                });
-                emitter.emit('subscriber', content);
+                if (isDuplicate(arg, channel)) {
+                    client.say(channel, 'That username, ' + arg + ', appears to be a duplicate. Use !sendsubforce to override.');
+                    return;
+                }
+
+                lastSub[channel] = arg;
+                acceptSubscription(channel, arg);
+                client.say(channel, 'Added ' + arg + ' as a subscriber');
+            } else if (cmd === '!sendsubforce' && arg) {
+                lastSub[channel] = arg;
+                acceptSubscription(channel, arg);
+                client.say(channel, 'Added ' + arg + ' as a subscriber');
             }
         });
     }
@@ -72,4 +75,18 @@ function isBroadcaster(user, channel) {
 
 function isModerator(user) {
     return user.special.indexOf('moderator') >= 0;
+}
+
+function isDuplicate(username, channel) {
+    return lastSub[channel] === username;
+}
+
+function acceptSubscription(username) {
+    var content = { name: username, resub: false }; //resub not implemented
+    io.sockets.json.send({
+        bundleName: 'eol-sublistener',
+        messageName: 'subscriber',
+        content: content
+    });
+    emitter.emit('subscriber', content);
 }
