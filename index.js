@@ -42,10 +42,6 @@ squirrel('twitch-irc', function twitchIrcLoaded(err, irc) {
         throw new Error("[eol-sublistener] Failed to connect, reached maximum number of retries");
     });
 
-    client.addListener('crash', function (message, stack) {
-        throw new Error("[eol-sublistener] " + stack);
-    });
-
     client.addListener('subscription', function onSubscription(channel, username) {
         if (!isDuplicate(arg, channel)) {
             acceptSubscription(username)
