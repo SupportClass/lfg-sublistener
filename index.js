@@ -15,13 +15,13 @@ var cfgPath = __dirname + '/config.json';
 if (!fs.existsSync(cfgPath)) {
     throw new Error('[eol-sublistener] config.json was not present in bundles/eol-sublistener, aborting');
 }
-var ircConfig = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
+var config = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
 
 var lastSub = {};
 
 // Lazy-load and lazy-install the node-twitch-irc npm package if necessary
 squirrel('twitch-irc', function twitchIrcLoaded(err, irc) {
-    var client = new irc.client(ircConfig);
+    var client = new irc.client(config["twitch-irc"]);
 
     client.connect();
 
@@ -36,7 +36,7 @@ squirrel('twitch-irc', function twitchIrcLoaded(err, irc) {
         }
     });
 
-    if (ircConfig.chatevents) {
+    if (config.chatevents) {
         log.warn('[eol-sublistener] Chat events are on, may cause high CPU usage');
         client.addListener('chat', function onChat(channel, user, message) {
             if (!isBroadcaster(user, channel) && !isModerator(user))
