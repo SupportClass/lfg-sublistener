@@ -5,7 +5,8 @@ var io = require('../../server.js'),
     squirrel = require('squirrel'),
     EventEmitter = require('events').EventEmitter,
     emitter = new EventEmitter(),
-    log = require('../../lib/logger');
+    log = require('../../lib/logger'),
+    History = require('./backend/history');
 
 // To let another bundle's index.js take advantage of sublistener, we must export an event listener.
 // Socket.io dosn't work for inter-index.js communication, because broadcasts don't loopback.
@@ -17,17 +18,32 @@ if (!fs.existsSync(cfgPath)) {
 }
 var config = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
 
-var lastSub = {};
+var history = {};
+config['twitch-irc'].channels.forEach(function(channel) {
+    history['#' + channel] = new History();
+});
 
 // Lazy-load and lazy-install the node-twitch-irc npm package if necessary
 squirrel('twitch-irc', function twitchIrcLoaded(err, irc) {
-    var client = new irc.client(config["twitch-irc"]);
+    var client = new irc.client(config['twitch-irc']);
 
     client.connect();
 
     client.addListener('connected', function onConnected(address, port) {
-        var msg = '[eol-sublistener] Listening for subscribers on ' + ircConfig.channels;
+        var msg = '[eol-sublistener] Listening for subscribers on ' + config['twitch-irc'].channels;
         log.info(msg);
+    });
+
+    client.addListener('disconnected', function onDisconnected(reason) {
+        log.warn('[eol-sublistener] DISCONNECTED:', reason);
+    });
+
+    client.addListener('connectfail', function () {
+        throw new Error("[eol-sublistener] Failed to connect, reached maximum number of retries");
+    });
+
+    client.addListener('crash', function (message, stack) {
+        throw new Error("[eol-sublistener] " + message + stack);
     });
 
     client.addListener('subscription', function onSubscription(channel, username) {
@@ -46,26 +62,22 @@ squirrel('twitch-irc', function twitchIrcLoaded(err, irc) {
             var cmd = parts[0];
             var arg = parts.length > 1 ? parts[1] : null;
 
-            if (cmd === '!sendsub' && arg) {
-                if (isDuplicate(arg, channel)) {
-                    client.say(channel, 'That username, ' + arg + ', appears to be a duplicate. Use !sendsubforce to override.');
-                    return;
-                }
+            if (!arg)
+                return;
 
-                lastSub[channel] = arg;
-                acceptSubscription(channel, arg);
-                client.say(channel, 'Added ' + arg + ' as a subscriber');
-            } else if (cmd === '!sendsubforce' && arg) {
-                lastSub[channel] = arg;
-                acceptSubscription(channel, arg);
-                client.say(channel, 'Added ' + arg + ' as a subscriber');
+            switch (cmd) {
+                case '!sendsub':
+                    if (isDuplicate(arg, channel)) {
+                        client.say(channel, 'That username, ' + arg + ', appears to be a duplicate. Use !sendsubforce to override.');
+                        break;
+                    }
+                case '!sendsubforce':
+                    history[channel].add(arg);
+                    acceptSubscription(channel, arg);
+                    client.say(channel, 'Added ' + arg + ' as a subscriber');
             }
         });
     }
-
-    client.addListener('disconnected', function onDisconnected(reason) {
-        log.warn('[eol-sublistener] DISCONNECTED:', reason);
-    });
 });
 
 function isBroadcaster(user, channel) {
@@ -78,7 +90,7 @@ function isModerator(user) {
 }
 
 function isDuplicate(username, channel) {
-    return lastSub[channel] === username;
+    return history[channel].find(username) >= 0;
 }
 
 function acceptSubscription(username) {
