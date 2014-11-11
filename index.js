@@ -23,7 +23,7 @@ config['twitch-irc'].channels.forEach(function(channel) {
     history['#' + channel] = new History();
 });
 
-// Lazy-load and lazy-install the node-twitch-irc npm package if necessary
+// Lazy-load and lazy-install the twitch-irc npm package if necessary
 squirrel('twitch-irc', function twitchIrcLoaded(err, irc) {
     var client = new irc.client(config['twitch-irc']);
 
@@ -43,7 +43,7 @@ squirrel('twitch-irc', function twitchIrcLoaded(err, irc) {
     });
 
     client.addListener('crash', function (message, stack) {
-        throw new Error("[eol-sublistener] " + message + stack);
+        throw new Error("[eol-sublistener] " + stack);
     });
 
     client.addListener('subscription', function onSubscription(channel, username) {
