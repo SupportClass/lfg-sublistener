@@ -18,61 +18,55 @@ if (!fs.existsSync(cfgPath)) {
 var ircConfig = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
 
 // Lazy-load and lazy-install the node-twitch-irc npm package if necessary
-squirrel('node-twitch-irc', function twitchIrcLoaded(err, irc) {
-    var client = new irc.connect(ircConfig, function(err, event) {
-        if (!err) {
-            // "Subscribe" event.
-            event.on("subscribe", function onSubscribe(channel, username, resub) {
-                var content = { name: username, resub: resub };
+squirrel('twitch-irc', function twitchIrcLoaded(err, irc) {
+    var client = new irc.client(ircConfig);
+
+    client.connect();
+
+    client.addListener('connected', function onConnected(address, port) {
+        var msg = '[eol-sublistener] Listening for subscribers on ' + ircConfig.channels;
+        log.info(msg);
+    });
+
+    client.addListener('subscription', function onSubscription(channel, username) {
+        var content = { name: username, resub: false }; //resub not implemented
+        io.sockets.json.send({
+            bundleName: 'eol-sublistener',
+            messageName: 'subscriber',
+            content: content
+        });
+        emitter.emit('subscriber', content);
+    });
+
+    if (ircConfig.chatevents) {
+        log.warn('[eol-sublistener] Chat events are on, may cause high CPU usage');
+        client.addListener('chat', function onChat(channel, user, message) {
+            if (!isBroadcaster(user, channel) && !isModerator(user))
+                return;
+
+            var parts = message.split(' ',2);
+            var cmd = parts[0];
+            var arg = parts.length > 1 ? parts[1] : null;
+
+            if (cmd === '!sendsub' && arg) {
+                var content = { name: arg, resub: false };
                 io.sockets.json.send({
                     bundleName: 'eol-sublistener',
                     messageName: 'subscriber',
                     content: content
                 });
                 emitter.emit('subscriber', content);
-            });
-
-            // For testing purposes
-            // Uses chat events as a substitute for subscriber events
-            if (ircConfig.chatevents) {
-                log.warn('[eol-sublistener] Chat events are on, this may cause significant CPU usage');
-                event.on("chat", function onChat(user, channel, message) {
-                    if (isBroadcaster(user, channel) || isModerator(user)) {
-                        if (message.indexOf('!sendsub') === 0 && message.indexOf(' ') > 0) {
-                            var name = message.split(' ',2)[1];
-                            if (name == false)
-                                return;
-
-                            var content = { name: name, resub: false };
-                            io.sockets.json.send({
-                                bundleName: 'eol-sublistener',
-                                messageName: 'subscriber',
-                                content: content
-                            });
-                            emitter.emit('subscriber', content);
-                        }
-                    }
-                });
             }
+        });
+    }
 
-            // "Connected" event.
-            event.on("connected", function onConnected() {
-                log.info('[eol-sublistener] Listening for subscribers on', ircConfig.channels)
-            });
-
-            // "Disconnected" event.
-            event.on("disconnected", function onDisconnected(reason) {
-                log.warn('[eol-sublistener] DISCONNECTED:', reason);
-            });
-        } else  {
-            var msg = err.message;
-            log.error(msg);
-        }
+    client.addListener('disconnected', function onDisconnected(reason) {
+        log.warn('[eol-sublistener] DISCONNECTED:', reason);
     });
 });
 
 function isBroadcaster(user, channel) {
-    // Remove the leading "#" from channel
+    // Remove the leading "#" from channel when comparing
     return user.username === channel.slice(1);
 }
 
