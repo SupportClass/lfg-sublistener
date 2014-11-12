@@ -89,7 +89,7 @@ function isDuplicate(username, channel) {
     return history[channel].find(username) >= 0;
 }
 
-function acceptSubscription(username) {
+function acceptSubscription(username, channel) {
     var content = { name: username, resub: false, channel: channel }; //resub not implemented
     io.sockets.json.send({
         bundleName: 'eol-sublistener',
