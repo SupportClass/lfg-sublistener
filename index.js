@@ -69,7 +69,7 @@ squirrel('twitch-irc', function twitchIrcLoaded(err, irc) {
                     }
                 case '!sendsubforce':
                     history[channel].add(arg);
-                    acceptSubscription(channel, arg);
+                    acceptSubscription(arg, channel);
                     client.say(channel, 'Added ' + arg + ' as a subscriber');
             }
         });
@@ -90,7 +90,7 @@ function isDuplicate(username, channel) {
 }
 
 function acceptSubscription(username) {
-    var content = { name: username, resub: false }; //resub not implemented
+    var content = { name: username, resub: false, channel: channel }; //resub not implemented
     io.sockets.json.send({
         bundleName: 'eol-sublistener',
         messageName: 'subscriber',
