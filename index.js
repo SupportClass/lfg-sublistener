@@ -43,8 +43,8 @@ squirrel('twitch-irc', function twitchIrcLoaded(err, irc) {
     });
 
     client.addListener('subscription', function onSubscription(channel, username) {
-        if (!isDuplicate(arg, channel)) {
-            acceptSubscription(username)
+        if (!isDuplicate(username, channel)) {
+            acceptSubscription(username, channel)
         }
     });
 
