@@ -25,6 +25,7 @@ var Sublistener = function(extensionApi) {
     }
     Sublistener.prototype._singletonInstance = this;
 
+    events.EventEmitter.call(this);
     nodecg = extensionApi;
     var self = this;
 
@@ -89,7 +90,7 @@ var Sublistener = function(extensionApi) {
 };
 
 // To let another bundle's index.js take advantage of sublistener, we must export an event listener.
-// Socket.io dosn't work for inter-extension communication, because broadcasts don't loopback.
+// Socket.io doesn't work for inter-extension communication, because broadcasts don't loopback.
 util.inherits(Sublistener, events.EventEmitter);
 
 Sublistener.prototype.isBroadcaster = function(user, channel) {
@@ -111,4 +112,4 @@ Sublistener.prototype.acceptSubscription = function (username, channel) {
     this.emit('subscriber', content);
 };
 
-module.exports = function(extensionApi) { new Sublistener(extensionApi) };
+module.exports = function(extensionApi) { return new Sublistener(extensionApi); };
