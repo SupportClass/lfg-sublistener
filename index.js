@@ -53,11 +53,12 @@ var Sublistener = function(extensionApi) {
             }
         });
 
-    client.addListener('subscription', function onSubscription(channel, username) {
-        if (!isDuplicate(username, channel)) {
-            acceptSubscription(username, channel)
-        }
-    });
+        client.addListener('subscription', function onSubscription(channel, username) {
+            if (!isDuplicate(username, channel)) {
+                acceptSubscription(username, channel)
+            }
+        });
+
         if (config.chatevents) {
             log.warn('[eol-sublistener] Chat events are on, may cause high CPU usage');
             client.addListener('chat', function onChat(channel, user, message) {
@@ -73,13 +74,13 @@ var Sublistener = function(extensionApi) {
 
                 switch (cmd) {
                     case '!sendsub':
-                        if (isDuplicate(arg, channel)) {
+                        if (self.isDuplicate(arg, channel)) {
                             client.say(channel, 'That username, ' + arg + ', appears to be a duplicate. Use !sendsubforce to override.');
                             break;
                         }
                     case '!sendsubforce':
                         history[channel].add(arg);
-                        self.acceptSubscription(channel, arg);
+                        self.acceptSubscription(arg, channel);
                         client.say(channel, 'Added ' + arg + ' as a subscriber');
                 }
             });
@@ -104,7 +105,7 @@ Sublistener.prototype.isDuplicate = function(username, channel) {
     return history[channel].find(username) >= 0;
 };
 
-Sublistener.prototype.acceptSubscription = acceptSubscription(username, channel) {
+Sublistener.prototype.acceptSubscription = function (username, channel) {
     var content = { name: username, resub: false, channel: channel }; //resub not implemented
     nodecg.sendMessage('subscriber', content);
     this.emit('subscriber', content);
