@@ -20,7 +20,7 @@ config['twitch-irc'].channels.forEach(function(channel) {
 });
 
 var Sublistener = function(extensionApi) {
-    if ( Sublistener.prototype._singletonInstance ) {
+    if (Sublistener.prototype._singletonInstance) {
         return Sublistener.prototype._singletonInstance;
     }
     Sublistener.prototype._singletonInstance = this;
