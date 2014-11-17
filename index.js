@@ -49,12 +49,6 @@ var Sublistener = function(extensionApi) {
         });
 
         client.addListener('subscription', function onSubscription(channel, username) {
-            if (!self.isDuplicate(arg, channel)) {
-                self.acceptSubscription(username)
-            }
-        });
-
-        client.addListener('subscription', function onSubscription(channel, username) {
             if (!isDuplicate(username, channel)) {
                 acceptSubscription(username, channel)
             }
