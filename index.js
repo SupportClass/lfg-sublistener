@@ -4,7 +4,7 @@ var fs = require('fs'),
     squirrel = require('squirrel'),
     events = require('events'),
     log = require('../../lib/logger'),
-    History = require('./backend/history'),
+    History = require('./extension/history'),
     nodecg = {},
     util = require('util');
 
