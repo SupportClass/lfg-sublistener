@@ -44,9 +44,12 @@ var Sublistener = function(extensionApi) {
             log.warn('[eol-sublistener] DISCONNECTED:', reason);
         });
 
+        client.addListener('reconnect', function onReconnect() {
+            log.info('[eol-sublistener] Attempting to reconnect...');
+        });
+
         client.addListener('connectfail', function () {
-            var msg = "[eol-sublistener] Failed to connect, reached maximum number of retries";
-            log.error(msg);
+            log.error('[eol-sublistener] Failed to connect, reached maximum number of retries');
         });
 
         client.addListener('subscription', function onSubscription(channel, username) {
