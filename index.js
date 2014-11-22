@@ -52,6 +52,10 @@ var Sublistener = function(extensionApi) {
             log.error('[eol-sublistener] Failed to connect, reached maximum number of retries');
         });
 
+        client.addListener('limitation', function (err) {
+            log.error('[eol-sublistener]', err.message);
+        });
+
         client.addListener('subscription', function onSubscription(channel, username) {
             if (!self.isDuplicate(username, channel)) {
                 history[channel].add(username);
