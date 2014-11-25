@@ -115,7 +115,7 @@ Sublistener.prototype.acceptSubscription = function (username, channel) {
         name: username,
         resub: false, //resub not implemented
         channel: channel,
-        utos: Date.now()
+        ts: Date.now()
     };
     nodecg.sendMessage('subscription', content);
     this.emit('subscription', content);
