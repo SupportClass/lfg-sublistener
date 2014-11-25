@@ -86,6 +86,7 @@ var Sublistener = function(extensionApi) {
                         history[channel].add(arg);
                         self.acceptSubscription(arg, channel);
                         client.say(channel, 'Added ' + arg + ' as a subscriber');
+                        break;
                 }
             });
         }
@@ -110,9 +111,14 @@ Sublistener.prototype.isDuplicate = function(username, channel) {
 };
 
 Sublistener.prototype.acceptSubscription = function (username, channel) {
-    var content = { name: username, resub: false, channel: channel }; //resub not implemented
-    nodecg.sendMessage('subscriber', content);
-    this.emit('subscriber', content);
+    var content = {
+        name: username,
+        resub: false, //resub not implemented
+        channel: channel,
+        utos: Date.now()
+    };
+    nodecg.sendMessage('subscription', content);
+    this.emit('subscription', content);
 };
 
 module.exports = function(extensionApi) { return new Sublistener(extensionApi); };

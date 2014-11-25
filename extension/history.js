@@ -1,6 +1,6 @@
 'use strict';
 
-var MAX_LENGTH = 25;
+var MAX_LENGTH = 5;
 
 function History() {
     this._cache = [];
@@ -9,7 +9,7 @@ function History() {
 History.prototype.add = function(username) {
     this._cache.unshift(username);
     while (this._cache.length > MAX_LENGTH) {
-        history.pop();
+        this._cache.pop();
     }
 };
 

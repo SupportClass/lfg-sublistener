@@ -1,29 +1,30 @@
 #eol-sublistener
 
-This bundle listens to a given Twitch chat via IRC for "subscribe" events, both new and re-subscriptions. 
+This bundle listens to a given Twitch chat via IRC for "subscription" events.
 Upon hearing one, it emits a NodeCG API message that other bundles can listen to and use.
-Also displays recent subscribers on the dashboard.
+Also displays recent subscriptions on the dashboard.
 
-## Installation
+## Installation``
 
 - Install to `nodecg/bundles/eol-sublistener`
 - Create `config.json` in `nodecg/bundles/eol-sublistener`
-- Edit `config.json` to contain a valid [node-twitch-irc configuration](https://github.com/Schmoopiie/node-twitch-irc/wiki/Configuration) in JSON format.
+- Edit `config.json` to contain a valid [twitch-irc configuration](https://github.com/Schmoopiie/twitch-irc/wiki#configuration) in JSON format.
 - NOTE: There is a custom boolean parameter called "chatevents". If 'false', chat events will not be hooked, thereby saving CPU and RAM.
 
 ### Config Example
 ```
 #!json
 {
-    "autoreconnect": true,
-    "channels": ["channelname"],
-    "server": "irc.twitch.tv",
-    "port": 6667,
-    "nickname": "username",
-    "oauth": "oauth:tokenhere",
-    "debug": false,
-    "twitchclient": 3,
-    "chatevents": false
+  "twitch-irc": {
+    "options": {
+    },
+    "identity": {
+      "username": "YOUR_USERNAME",
+      "password": "oauth:YOUR_OAUTH"
+    },
+    "channels": ["ANY_CHANNEL"]
+  },
+  "chatevents": fakse
 }
 ```
 
@@ -36,19 +37,19 @@ If you simply want a list of recent subs on your dashboard, you are done.
 If you would like to use this data in another bundle, add the following code to your view/panel:
 ```
 #!javascript
-nodecg.listenFor('subscriber', 'eol-sublistener', callback);
+nodecg.listenFor('subscription', 'eol-sublistener', callback);
 ```
 ... where 'callback' is the name of a function with the signature `function callback(data)`
 
 ### Use in other bundles' extensions
-If you want to use subscriber events in another bundle's extension, add the following code:
+If you want to use subscription events in another bundle's extension, add the following code:
 ```
 #!javascript
 var sublistener = require('../eol-sublistener');
 
-sublistener.on('subscriber', function(data) {
+sublistener.on('subscription', function(data) {
     // do work
-    // data.name = Twitch username of subscriber
+    // data.name = Twitch username of subscription
     // data.resub = Boolean
 });
 ```
