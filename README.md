@@ -24,7 +24,7 @@ Also displays recent subscriptions on the dashboard.
     },
     "channels": ["ANY_CHANNEL"]
   },
-  "chatevents": fakse
+  "chatevents": false
 }
 ```
 
