@@ -8,16 +8,7 @@ var fs = require('fs'),
     nodecg = {},
     util = require('util');
 
-var cfgPath = __dirname + '/config.json';
-if (!fs.existsSync(cfgPath)) {
-    throw new Error('[eol-sublistener] config.json was not present in bundles/eol-sublistener, aborting');
-}
-var config = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
-
 var history = {};
-config['twitch-irc'].channels.forEach(function(channel) {
-    history['#' + channel] = new History();
-});
 
 var Sublistener = function(extensionApi) {
     if (Sublistener.prototype._singletonInstance) {
@@ -25,18 +16,27 @@ var Sublistener = function(extensionApi) {
     }
     Sublistener.prototype._singletonInstance = this;
 
-    events.EventEmitter.call(this);
     nodecg = extensionApi;
+
+    if (!nodecg.bundleConfig) {
+        throw new Error('[eol-sublistener] No config found in cfg/eol-sublistener.json, aborting!');
+    }
+
+    nodecg.bundleConfig['twitch-irc'].channels.forEach(function(channel) {
+        history['#' + channel] = new History();
+    });
+
+    events.EventEmitter.call(this);
     var self = this;
 
     // Lazy-load and lazy-install the twitch-irc npm package if necessary
     squirrel('twitch-irc', function twitchIrcLoaded(err, irc) {
-        var client = new irc.client(config['twitch-irc']);
+        var client = new irc.client(nodecg.bundleConfig['twitch-irc']);
 
         client.connect();
 
         client.addListener('connected', function onConnected(address, port) {
-            var msg = '[eol-sublistener] Listening for subscribers on ' + config['twitch-irc'].channels;
+            var msg = '[eol-sublistener] Listening for subscribers on ' + nodecg.bundleConfig['twitch-irc'].channels;
             log.info(msg);
         });
 
@@ -63,7 +63,7 @@ var Sublistener = function(extensionApi) {
             }
         });
 
-        if (config.chatevents) {
+        if (nodecg.bundleConfig.chatevents) {
             log.warn('[eol-sublistener] Chat events are on, may cause high CPU usage');
             client.addListener('chat', function onChat(channel, user, message) {
                 if (!self.isBroadcaster(user, channel) && !self.isModerator(user))
