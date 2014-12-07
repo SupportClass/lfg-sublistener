@@ -10,6 +10,6 @@
     "license": "Commercial",
     "extension": {
         "express": false,
-        "path": "index.js"
+        "path": "extension.js"
     }
 }
