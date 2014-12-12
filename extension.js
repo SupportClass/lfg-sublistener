@@ -30,7 +30,7 @@ var Sublistener = function(extensionApi) {
     var self = this;
 
     // Lazy-load and lazy-install the twitch-irc npm package if necessary
-    squirrel('twitch-irc', function twitchIrcLoaded(err, irc) {
+    squirrel('twitch-irc@1.1.0', function twitchIrcLoaded(err, irc) {
         var client = new irc.client(nodecg.bundleConfig['twitch-irc']);
 
         client.connect();
