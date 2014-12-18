@@ -18,8 +18,8 @@ var Sublistener = function(extensionApi) {
 
     nodecg = extensionApi;
 
-    if (!nodecg.bundleConfig) {
-        throw new Error('[eol-sublistener] No config found in cfg/eol-sublistener.json, aborting!');
+    if (!Object.keys(nodecg.bundleConfig).length) {
+        throw new Error('[lfg-sublistener] No config found in cfg/lfg-sublistener.json, aborting!');
     }
 
     nodecg.bundleConfig['twitch-irc'].channels.forEach(function(channel) {
@@ -36,24 +36,24 @@ var Sublistener = function(extensionApi) {
         client.connect();
 
         client.addListener('connected', function onConnected(address, port) {
-            var msg = '[eol-sublistener] Listening for subscribers on ' + nodecg.bundleConfig['twitch-irc'].channels;
+            var msg = '[lfg-sublistener] Listening for subscribers on ' + nodecg.bundleConfig['twitch-irc'].channels;
             log.info(msg);
         });
 
         client.addListener('disconnected', function onDisconnected(reason) {
-            log.warn('[eol-sublistener] DISCONNECTED:', reason);
+            log.warn('[lfg-sublistener] DISCONNECTED:', reason);
         });
 
         client.addListener('reconnect', function onReconnect() {
-            log.info('[eol-sublistener] Attempting to reconnect...');
+            log.info('[lfg-sublistener] Attempting to reconnect...');
         });
 
         client.addListener('connectfail', function () {
-            log.error('[eol-sublistener] Failed to connect, reached maximum number of retries');
+            log.error('[lfg-sublistener] Failed to connect, reached maximum number of retries');
         });
 
         client.addListener('limitation', function (err) {
-            log.error('[eol-sublistener]', err.message);
+            log.error('[lfg-sublistener]', err.message);
         });
 
         client.addListener('subscription', function onSubscription(channel, username) {
@@ -64,7 +64,7 @@ var Sublistener = function(extensionApi) {
         });
 
         if (nodecg.bundleConfig.chatevents) {
-            log.warn('[eol-sublistener] Chat events are on, may cause high CPU usage');
+            log.warn('[lfg-sublistener] Chat events are on, may cause high CPU usage');
             client.addListener('chat', function onChat(channel, user, message) {
                 if (!self.isBroadcaster(user, channel) && !self.isModerator(user))
                     return;

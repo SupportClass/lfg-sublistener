@@ -1,9 +1,9 @@
-.eol-sublistener .sub {
+.lfg-sublistener .sub {
   padding: 4px 35px 4px 6px;
   margin-bottom: 2px;
   overflow-wrap: break-word;
 }
-#eol-sublistener_list {
+#lfg-sublistener_list {
   max-height: 250px;
   overflow-y: scroll;
   margin-bottom: 4px;
