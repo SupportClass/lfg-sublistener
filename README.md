@@ -13,9 +13,7 @@ Also displays recent subscriptions on the dashboard.
 ### Config Example
 ```json
 {
-  "twitch-irc": {
-    "options": {
-    },
+  "twitch-irc":
     "identity": {
       "username": "YOUR_USERNAME",
       "password": "oauth:YOUR_OAUTH"
