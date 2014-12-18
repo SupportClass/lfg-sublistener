@@ -11,8 +11,7 @@ Also displays recent subscriptions on the dashboard.
 - NOTE: There is a custom boolean parameter called "chatevents". If 'false', chat events will not be hooked, thereby saving CPU and RAM.
 
 ### Config Example
-```
-#!json
+```json
 {
   "twitch-irc": {
     "options": {
@@ -33,8 +32,7 @@ If you simply want a list of recent subs on your dashboard, you are done.
 
 ### In other bundles' view pages and dashboard panels
 If you would like to use this data in another bundle, add the following code to your view/panel:
-```
-#!javascript
+```javascript
 nodecg.listenFor('subscription', 'lfg-sublistener', callback);
 ```
 ... where 'callback' is the name of a function with the signature `function callback(data)`
@@ -44,8 +42,7 @@ If you want to use subscription events in another bundle's extension,
 add `lfg-sublistener` as a `bundleDependency` in your bundle's [`nodecg.json`](https://github.com/nodecg/nodecg/wiki/nodecg.json)
 
 Then add the following code:
-```
-#!javascript
+```javascript
 var sublistener = nodecg.extensions['lfg-sublistener'];
 
 sublistener.on('subscription', function subscription(data) {
