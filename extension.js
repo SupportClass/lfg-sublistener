@@ -11,11 +11,6 @@ var fs = require('fs'),
 var history = {};
 
 var Sublistener = function(extensionApi) {
-    if (Sublistener.prototype._singletonInstance) {
-        return Sublistener.prototype._singletonInstance;
-    }
-    Sublistener.prototype._singletonInstance = this;
-
     nodecg = extensionApi;
 
     if (!Object.keys(nodecg.bundleConfig).length) {
