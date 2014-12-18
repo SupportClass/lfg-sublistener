@@ -43,11 +43,11 @@ var Sublistener = function(extensionApi) {
             log.info('[lfg-sublistener] Attempting to reconnect...');
         });
 
-        client.addListener('connectfail', function () {
+        client.addListener('connectfail', function onConnectFail() {
             log.error('[lfg-sublistener] Failed to connect, reached maximum number of retries');
         });
 
-        client.addListener('limitation', function (err) {
+        client.addListener('limitation', function onLimitation(err) {
             log.error('[lfg-sublistener]', err.message);
         });
 
