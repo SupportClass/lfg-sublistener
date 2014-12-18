@@ -1,7 +1,7 @@
 #lfg-sublistener
 This is a [NodeCG](http://github.com/nodecg/nodecg) bundle.
 
-Listens to a one or many Twitch chat channels via IRC for "subscription" events.
+Listens to one or many Twitch chat channels via IRC for "subscription" events.
 Upon hearing one, it emits a NodeCG API message that other bundles can listen to and use.
 Also displays recent subscriptions on the dashboard.
 
