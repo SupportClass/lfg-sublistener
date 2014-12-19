@@ -1,16 +1,20 @@
 'use strict';
 
 var MAX_LENGTH = 5;
-var history = [];
 
-module.exports.add = function(username) {
-    history.unshift(username);
-    while (history.length > MAX_LENGTH) {
-        history.pop();
+function History() {
+    this._cache = [];
+}
+
+History.prototype.add = function(username) {
+    this._cache.unshift(username);
+    while (this._cache.length > MAX_LENGTH) {
+        this._cache.pop();
     }
 };
 
-module.exports.find = function(username) {
-    return history.indexOf(username);
+History.prototype.find = function(username) {
+    return this._cache.indexOf(username);
 };
 
+module.exports = History;
