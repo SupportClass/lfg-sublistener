@@ -105,11 +105,13 @@ Sublistener.prototype.isModerator = function(user) {
 };
 
 Sublistener.prototype.isDuplicate = function(username, channel) {
+    var isDupe = false;
     try {
-        return history[channel].find(username) >= 0;
+        isDupe = history[channel].find(username) >= 0;
     } catch(e) {
         log.error("[lfg-sublistener] Dupe check failed:", e.stack);
     }
+    return isDupe;
 };
 
 Sublistener.prototype.acceptSubscription = function (username, channel) {
