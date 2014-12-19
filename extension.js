@@ -4,11 +4,9 @@ var fs = require('fs'),
     squirrel = require('squirrel'),
     events = require('events'),
     log = require('../../lib/logger/index'),
-    History = require('./extension/history'),
+    history = require('./extension/history'),
     nodecg = {},
     util = require('util');
-
-var history = {};
 
 var Sublistener = function(extensionApi) {
     nodecg = extensionApi;
