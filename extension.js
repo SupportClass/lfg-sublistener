@@ -109,7 +109,7 @@ Sublistener.prototype.isDuplicate = function(username, channel) {
     try {
         isDupe = history[channel].find(username) >= 0;
     } catch(e) {
-        log.error("[lfg-sublistener] Dupe check failed:", e.stack);
+        log.error("[lfg-sublistener] Dupe check failed, assuming not a dupe:", e.stack);
     }
     return isDupe;
 };
