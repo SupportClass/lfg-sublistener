@@ -58,6 +58,10 @@ var Sublistener = function(extensionApi) {
             }
         });
 
+        client.addListener('crash', function onCrash(message, stack) {
+            log.error('[lfg-sublistener] CRASH:', stack);
+        });
+
         if (nodecg.bundleConfig.chatevents) {
             log.warn('[lfg-sublistener] Chat events are on, may cause high CPU usage');
             client.addListener('chat', function onChat(channel, user, message) {
