@@ -51,3 +51,6 @@ sublistener.on('subscription', function subscription(data) {
 });
 ```
 
+### License
+lfg-sublistener is provided under the MIT license, which is available to read in the [LICENSE][] file.
+[license]: LICENSE
