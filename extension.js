@@ -59,7 +59,7 @@ var Sublistener = function(extensionApi) {
         });
 
         client.addListener('crash', function onCrash(message, stack) {
-            log.error('[lfg-sublistener] CRASH:', stack);
+            log.error('[lfg-sublistener] CRASH:', message, stack);
         });
 
         if (nodecg.bundleConfig.chatevents) {
