@@ -1,7 +1,7 @@
 {
     "name": "lfg-sublistener",
     "version": "1.0.0",
-    "nodecgDependency": "~0.3.0",
+    "nodecgDependency": "~0.4.0",
     "homepage": "http://alexvan.camp/",
     "authors": [
         "Alex Van Camp <email@alexvan.camp>"
@@ -11,5 +11,8 @@
     "extension": {
         "express": false,
         "path": "extension.js"
+    },
+    "dependencies": {
+        "twitch-irc": "^1.1.0"
     }
 }
