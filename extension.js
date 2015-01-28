@@ -1,13 +1,12 @@
 'use strict';
 
-var fs = require('fs'),
-    irc = require('twitch-irc'),
+var irc = require('twitch-irc'),
     events = require('events'),
     History = require('./extension/history'),
     nodecg = {},
     util = require('util');
 
-var history = {};
+var hist = {};
 
 var Sublistener = function(extensionApi) {
     nodecg = extensionApi;
@@ -17,7 +16,7 @@ var Sublistener = function(extensionApi) {
     }
 
     nodecg.bundleConfig['twitch-irc'].channels.forEach(function(channel) {
-        history['#' + channel] = new History();
+        hist['#' + channel] = new History();
     });
 
     events.EventEmitter.call(this);
@@ -27,7 +26,7 @@ var Sublistener = function(extensionApi) {
 
     client.connect();
 
-    client.addListener('connected', function onConnected(address, port) {
+    client.addListener('connected', function onConnected() {
         var msg = 'Listening for subscribers on ' + nodecg.bundleConfig['twitch-irc'].channels;
         nodecg.log.info(msg);
     });
@@ -50,8 +49,8 @@ var Sublistener = function(extensionApi) {
 
     client.addListener('subscription', function onSubscription(channel, username) {
         if (!self.isDuplicate(username, channel)) {
-            history[channel].add(username);
-            self.acceptSubscription(username, channel)
+            hist[channel].add(username);
+            self.acceptSubscription(username, channel);
         }
     });
 
@@ -75,11 +74,13 @@ var Sublistener = function(extensionApi) {
             switch (cmd) {
                 case '!sendsub':
                     if (self.isDuplicate(arg, channel)) {
-                        client.say(channel, 'That username, ' + arg + ', appears to be a duplicate. Use !sendsubforce to override.');
+                        client.say(channel, 'That username, ' + arg +
+                            ', appears to be a duplicate. Use !sendsubforce to override.');
                         break;
                     }
+                    /* falls through */
                 case '!sendsubforce':
-                    history[channel].add(arg);
+                    hist[channel].add(arg);
                     self.acceptSubscription(arg, channel);
                     client.say(channel, 'Added ' + arg + ' as a subscriber');
                     break;
@@ -103,14 +104,19 @@ Sublistener.prototype.isModerator = function(user) {
 Sublistener.prototype.isDuplicate = function(username, channel) {
     var isDupe = false;
     try {
-        isDupe = history[channel].find(username) >= 0;
+        isDupe = hist[channel].find(username) >= 0;
     } catch(e) {
-        nodecg.log.error("Dupe check failed, assuming not a dupe:", e.stack);
+        nodecg.log.error('Dupe check failed, assuming not a dupe:', e.stack);
     }
     return isDupe;
 };
 
 Sublistener.prototype.acceptSubscription = function (username, channel) {
+    // 2014-01-15: quick and dirty hack to make sure that we only accept subs
+    // that are for one of the channels we are listening to
+    var channelNoPound = channel.slice(1);
+    if (nodecg.bundleConfig['twitch-irc'].channels.indexOf(channelNoPound) < 0) return;
+
     var content = {
         name: username,
         resub: false, //resub not implemented
