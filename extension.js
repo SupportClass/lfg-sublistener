@@ -121,7 +121,7 @@ Sublistener.prototype.acceptSubscription = function (username, channel) {
         name: username,
         resub: false, //resub not implemented
         channel: channel,
-        ts: Date.now() / 1000 // we want seconds, not milliseconds
+        ts: Date.now()
     };
     nodecg.sendMessage('subscription', content);
     this.emit('subscription', content);
