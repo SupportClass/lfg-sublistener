@@ -21,30 +21,40 @@ var Sublistener = function(extensionApi) {
 
     events.EventEmitter.call(this);
     var self = this;
-
     var client = new irc.client(nodecg.bundleConfig['twitch-irc']);
 
-    client.connect();
+    nodecg.declareSyncedVar({
+        name: 'reconnecting',
+        initialVal: false
+    });
 
+    nodecg.listenFor('reconnect', function reconnect() {
+        nodecg.variables.reconnecting = true;
+        client.disconnect();
+        client.connect();
+    });
+
+    client.connect();
     client.addListener('connected', function onConnected() {
-        var msg = 'Listening for subscribers on ' + nodecg.bundleConfig['twitch-irc'].channels;
-        nodecg.log.info(msg);
+        nodecg.variables.reconnecting = false;
+        self.log('info', 'Listening for subscribers on ' + nodecg.bundleConfig['twitch-irc'].channels);
     });
 
     client.addListener('disconnected', function onDisconnected(reason) {
-        nodecg.log.warn('DISCONNECTED:', reason);
+        self.log('warn', 'DISCONNECTED: ' + reason);
     });
 
     client.addListener('reconnect', function onReconnect() {
-        nodecg.log.info('Attempting to reconnect...');
+        nodecg.variables.reconnecting = true;
+        self.log('info', 'Attempting to reconnect...');
     });
 
     client.addListener('connectfail', function onConnectFail() {
-        nodecg.log.error('Failed to connect, reached maximum number of retries');
+        self.log('error', 'Failed to connect, reached maximum number of retries');
     });
 
     client.addListener('limitation', function onLimitation(err) {
-        nodecg.log.error(err.message);
+        self.log('error', err);
     });
 
     client.addListener('subscription', function onSubscription(channel, username) {
@@ -68,8 +78,7 @@ var Sublistener = function(extensionApi) {
             var cmd = parts[0];
             var arg = parts.length > 1 ? parts[1] : null;
 
-            if (!arg)
-                return;
+            if (!arg) return;
 
             switch (cmd) {
                 case '!sendsub':
@@ -125,6 +134,22 @@ Sublistener.prototype.acceptSubscription = function (username, channel) {
     };
     nodecg.sendMessage('subscription', content);
     this.emit('subscription', content);
+};
+
+Sublistener.prototype.log = function (level) {
+    var formatArgs = Array.prototype.slice.call(arguments, 1);
+    var msg = util.format.apply(this, formatArgs);
+    switch (level) {
+        case 'info':
+            nodecg.log.info(msg); break;
+        case 'warn':
+            nodecg.log.warn(msg); break;
+        case 'error':
+            nodecg.log.error(msg); break;
+        default:
+            return;
+    }
+    nodecg.sendMessage('log', msg);
 };
 
 module.exports = function(extensionApi) { return new Sublistener(extensionApi); };

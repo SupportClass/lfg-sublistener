@@ -1,8 +1,8 @@
 [
   {
-    "name": "recent-subs",
-    "title": "Recent Subscriptions",
-    "width": 2,
+    "name": "subscriptions",
+    "title": "Subscriptions",
+    "width": 4,
     "file": "panel.jade",
     "faIcon": "fa-twitch"
   }

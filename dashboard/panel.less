@@ -4,6 +4,41 @@
     margin-bottom: 2px;
     overflow-wrap: break-word;
   }
+
+  .column {
+    width: 100%;
+    margin: 0 4px;
+  }
+
+  .column:first-of-type {
+    margin-right: 4px;
+    margin-left: 0;
+  }
+
+  .column:last-of-type {
+    margin-right: 0;
+    margin-left: 4px;
+  }
+
+  .log {
+    font-size: 12px;
+    width: 100%; min-height: 51px;
+    max-height: 250px;
+    resize: none;
+    border: 1px solid #a8a8a8;
+    background-color: #f4f4f4;
+    overflow-y: scroll;
+    margin-bottom: 8px;
+  }
+
+  .log-message {
+    width: 100%;
+    padding: 0 3px;
+  }
+
+  .log-message:nth-child(even) {
+    background-color: #DDDDDD;
+  }
 }
 
 #lfg-sublistener_list {

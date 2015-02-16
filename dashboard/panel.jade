@@ -1,5 +1,19 @@
-.ncg-label(style="margin-top: 0px;") recent subs
-#lfg-sublistener_list
-.btn-group.btn-group-justified
-    .btn-group
-        button#lfg-sublistener_clearall.btn.btn-xs.btn-danger(type='button') Clear All
+div(style="display: flex;")
+    .column
+        .btn-group.btn-group-justified
+            .btn-group
+                button.ctrl-reconnect.btn.btn-xs.btn-primary(type='button') Force Reconnect
+        .ncg-label Debug Logs
+        .log
+            .log-message This is a test message.
+            .log-message And so is this.
+            .log-message Wow, another one!
+        .btn-group.btn-group-justified
+            .btn-group
+                button.ctrl-clearLogs.btn.btn-xs.btn-danger(type='button') Clear Logs
+    .column
+        .ncg-label(style="margin-top: 0;") recent subs
+        #lfg-sublistener_list
+        .btn-group.btn-group-justified
+            .btn-group
+                button#lfg-sublistener_clearall.btn.btn-xs.btn-danger(type='button') Clear All
