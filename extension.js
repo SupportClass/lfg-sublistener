@@ -101,8 +101,9 @@ var Sublistener = function(extensionApi) {
     });
 
     client.addListener('subscription', function onSubscription(channel, username) {
-        if (!self.isDuplicate(username, channel)) {
-            self.acceptSubscription(username, channel);
+        var channelNoPound = channel.replace('#', '');
+        if (!self.isDuplicate(username, channelNoPound)) {
+            self.acceptSubscription(username, channelNoPound);
         }
     });
 
