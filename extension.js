@@ -2,11 +2,18 @@
 
 var irc = require('twitch-irc'),
     events = require('events'),
-    History = require('./extension/history'),
+    util = require('util'),
+    path = require('path'),
+    locallydb = require('locallydb'),
     nodecg = {},
-    util = require('util');
+    hist = {};
 
-var hist = {};
+var MAX_LEN = 50;
+var POLL_INTERVAL = 5 * 60 * 1000;
+var DBPATH = path.resolve(__dirname, '../../db/lfg-sublistener');
+
+// load the database folder, the collections will be made/loaded later
+var db = new locallydb(DBPATH);
 
 var Sublistener = function(extensionApi) {
     nodecg = extensionApi;
@@ -15,12 +22,48 @@ var Sublistener = function(extensionApi) {
         throw new Error('[lfg-sublistener] No config found in cfg/lfg-sublistener.json, aborting!');
     }
 
+    var self = this;
+
+    // If lfg-twitchapi is present, set up polling as a backup
+    if (nodecg.extensions.hasOwnProperty('lfg-twitchapi')) {
+        var twitchApi = nodecg.extensions['lfg-twitchapi'].apiCall;
+
+        nodecg.log.info('lfg-twitchapi found, using API polling to augment subscription detection');
+
+        // Poll for subs every POLL_INTERVAL milliseconds
+        // If any of the subs returned aren't already in the history, add them.
+        setInterval(function() {
+            twitchApi('GET', '/channels/{{username}}/subscriptions', { limit: MAX_LEN, direction: 'desc' },
+                function(err, code, body) {
+                    if (err) {
+                        nodecg.log.error(err);
+                        return;
+                    }
+
+                    if (code !== 200) {
+                        nodecg.log.error(body.error, body.message);
+                        return;
+                    }
+
+                    // Go through subs in reverse, from oldest to newest
+                    body.subscriptions.reverse().forEach(function(subscription) {
+                        var username = subscription.user.name;
+                        var channel = body.channel;
+                        if (!self.isDuplicate(username, channel)) {
+                            self.acceptSubscription(username, channel);
+                        }
+                    });
+                });
+        }, POLL_INTERVAL);
+    } else {
+        nodecg.log.warn('lfg-twitchapi not present, API polling will not be available');
+    }
+
     nodecg.bundleConfig['twitch-irc'].channels.forEach(function(channel) {
-        hist['#' + channel] = new History();
+        hist[channel] = db.collection(channel, db, false); // Disable autosave
     });
 
     events.EventEmitter.call(this);
-    var self = this;
     var client = new irc.client(nodecg.bundleConfig['twitch-irc']);
 
     nodecg.declareSyncedVar({
@@ -59,7 +102,6 @@ var Sublistener = function(extensionApi) {
 
     client.addListener('subscription', function onSubscription(channel, username) {
         if (!self.isDuplicate(username, channel)) {
-            hist[channel].add(username);
             self.acceptSubscription(username, channel);
         }
     });
@@ -71,7 +113,8 @@ var Sublistener = function(extensionApi) {
     if (nodecg.bundleConfig.chatevents) {
         nodecg.log.warn('Chat events are on, may cause high CPU usage');
         client.addListener('chat', function onChat(channel, user, message) {
-            if (!self.isBroadcaster(user, channel) && !self.isModerator(user))
+            var channelNoPound = channel.replace('#', '');
+            if (!self.isBroadcaster(user, channelNoPound) && !self.isModerator(user))
                 return;
 
             var parts = message.split(' ',2);
@@ -79,18 +122,16 @@ var Sublistener = function(extensionApi) {
             var arg = parts.length > 1 ? parts[1] : null;
 
             if (!arg) return;
-
             switch (cmd) {
                 case '!sendsub':
-                    if (self.isDuplicate(arg, channel)) {
+                    if (self.isDuplicate(arg, channelNoPound)) {
                         client.say(channel, 'That username, ' + arg +
                             ', appears to be a duplicate. Use !sendsubforce to override.');
                         break;
                     }
                     /* falls through */
                 case '!sendsubforce':
-                    hist[channel].add(arg);
-                    self.acceptSubscription(arg, channel);
+                    self.acceptSubscription(arg, channelNoPound);
                     client.say(channel, 'Added ' + arg + ' as a subscriber');
                     break;
             }
@@ -102,8 +143,7 @@ var Sublistener = function(extensionApi) {
 util.inherits(Sublistener, events.EventEmitter);
 
 Sublistener.prototype.isBroadcaster = function(user, channel) {
-    // Remove the leading "#" from channel when comparing
-    return user.username === channel.slice(1);
+    return user.username === channel;
 };
 
 Sublistener.prototype.isModerator = function(user) {
@@ -113,7 +153,7 @@ Sublistener.prototype.isModerator = function(user) {
 Sublistener.prototype.isDuplicate = function(username, channel) {
     var isDupe = false;
     try {
-        isDupe = hist[channel].find(username) >= 0;
+        isDupe = hist[channel].where({ name: username }).items.length > 0;
     } catch(e) {
         nodecg.log.error('Dupe check failed, assuming not a dupe:', e.stack);
     }
@@ -123,8 +163,7 @@ Sublistener.prototype.isDuplicate = function(username, channel) {
 Sublistener.prototype.acceptSubscription = function (username, channel) {
     // 2014-01-15: quick and dirty hack to make sure that we only accept subs
     // that are for one of the channels we are listening to
-    var channelNoPound = channel.slice(1);
-    if (nodecg.bundleConfig['twitch-irc'].channels.indexOf(channelNoPound) < 0) return;
+    if (nodecg.bundleConfig['twitch-irc'].channels.indexOf(channel) < 0) return;
 
     var content = {
         name: username,
@@ -132,6 +171,21 @@ Sublistener.prototype.acceptSubscription = function (username, channel) {
         channel: channel,
         ts: Date.now()
     };
+
+    // Okay, there's some real funny business going on here.
+    // `collection.insert` mutates the original object passed into it, so we have to clone it
+    hist[channel].insert(util._extend({}, content));
+    var items = hist[channel].items;
+    while (items.length > MAX_LEN) { // If we have more than MAX_LEN items, remove the oldest items
+        items.shift();
+    }
+    hist[channel].items = items;
+    hist[channel].save();
+
+    //... Likewise, other bundles that listen to this event emitter mutate `content`
+    // Since our collection keeps a permanent reference to these objects in `collection.items`,
+    // Any changes that other bundles make ripple back into our database. Fun!
+    // But since we passed a close to `collection.insert`, we avoid these ripple effects.
     nodecg.sendMessage('subscription', content);
     this.emit('subscription', content);
 };
