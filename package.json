@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "twitch-irc": "^1.1.0",
+    "locallydb": "0.0.5"
+  }
+}
