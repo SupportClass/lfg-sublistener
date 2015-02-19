@@ -26,7 +26,7 @@ var Sublistener = function(extensionApi) {
 
     // If lfg-twitchapi is present, set up polling as a backup
     if (nodecg.extensions.hasOwnProperty('lfg-twitchapi')) {
-        var twitchApi = nodecg.extensions['lfg-twitchapi'].apiCall;
+        var twitchApi = nodecg.extensions['lfg-twitchapi'];
 
         nodecg.log.info('lfg-twitchapi found, using API polling to augment subscription detection');
 
