@@ -12,7 +12,6 @@ nodecg.listenFor('subscription', addSub);
 nodecg.declareSyncedVar({
     name: 'reconnecting',
     setter: function(newVal) {
-        console.log('lol', newVal);
         $reconnect.prop('disabled', newVal);
     }
 });
