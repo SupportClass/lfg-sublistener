@@ -47,6 +47,8 @@ sublistener.on('subscription', function subscription(data) {
     // do work
     // data.name = Twitch username of subscription
     // data.channel = What channel was subscribed to
+    // data.resub = Boolean, whether or not this is a resub
+    // data.months = If this is a resub, this will be the number of months they have been subscribed for
     // data.ts = Unix timestamp (in seconds)
 });
 ```

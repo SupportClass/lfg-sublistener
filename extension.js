@@ -77,39 +77,44 @@ var Sublistener = function(extensionApi) {
         client.connect();
     });
 
-    client.connect();
-    client.addListener('connected', function onConnected() {
-        nodecg.variables.reconnecting = false;
-        self.log('info', 'Listening for subscribers on ' + nodecg.bundleConfig['twitch-irc'].channels);
-    });
-
-    client.addListener('disconnected', function onDisconnected(reason) {
-        self.log('warn', 'DISCONNECTED: ' + reason);
-    });
-
-    client.addListener('reconnect', function onReconnect() {
-        nodecg.variables.reconnecting = true;
-        self.log('info', 'Attempting to reconnect...');
-    });
-
-    client.addListener('connectfail', function onConnectFail() {
-        self.log('error', 'Failed to connect, reached maximum number of retries');
-    });
-
-    client.addListener('limitation', function onLimitation(err) {
-        self.log('error', err);
-    });
-
-    client.addListener('subscription', function onSubscription(channel, username) {
+    function onSubscription(channel, username, months) {
         var channelNoPound = channel.replace('#', '');
-        if (!self.isDuplicate(username, channelNoPound)) {
-            self.acceptSubscription(username, channelNoPound);
+        if (!self.isDuplicate(username, channelNoPound, months)) {
+            self.acceptSubscription(username, channelNoPound, months);
         }
-    });
+    }
 
-    client.addListener('crash', function onCrash(message, stack) {
-        nodecg.log.error('CRASH:', message, '\n\n', stack);
-    });
+    client.connect();
+    client
+        .addListener('connected', function onConnected() {
+            nodecg.variables.reconnecting = false;
+            self.log('info', 'Listening for subscribers on ' + nodecg.bundleConfig['twitch-irc'].channels);
+        })
+
+        .addListener('disconnected', function onDisconnected(reason) {
+            self.log('warn', 'DISCONNECTED: ' + reason);
+        })
+
+        .addListener('reconnect', function onReconnect() {
+            nodecg.variables.reconnecting = true;
+            self.log('info', 'Attempting to reconnect...');
+        })
+
+        .addListener('connectfail', function onConnectFail() {
+            self.log('error', 'Failed to connect, reached maximum number of retries');
+        })
+
+        .addListener('limitation', function onLimitation(err) {
+            self.log('error', err);
+        })
+
+        .addListener('subscription', onSubscription)
+
+        .addListener('subanniversary', onSubscription)
+
+        .addListener('crash', function onCrash(message, stack) {
+            nodecg.log.error('CRASH:', message, '\n\n', stack);
+        });
 
     if (nodecg.bundleConfig.chatevents) {
         nodecg.log.warn('Chat events are on, may cause high CPU usage');
@@ -151,18 +156,37 @@ Sublistener.prototype.isModerator = function(user) {
     return user.special.indexOf('moderator') >= 0;
 };
 
-Sublistener.prototype.isDuplicate = function(username, channel) {
+/**
+ * Checks if a subscription (or sub anniversary) already exists in the history.
+ *
+ * @params {string} username
+ * @params {string} channel
+ * @params {integer} months
+ * @returns {boolean}
+ */
+Sublistener.prototype.isDuplicate = function(username, channel, months) {
     username = username.toLowerCase();
     var isDupe = false;
     try {
-        isDupe = hist[channel].where({ name: username }).items.length > 0;
+        if (months) {
+            isDupe = hist[channel].where({ name: username, months: months }).items.length > 0;
+        } else {
+            isDupe = hist[channel].where({ name: username }).items.length > 0;
+        }
     } catch(e) {
         nodecg.log.error('Dupe check failed, assuming not a dupe:', e.stack);
     }
     return isDupe;
 };
 
-Sublistener.prototype.acceptSubscription = function (username, channel) {
+/**
+ * Emits a 'subscription' event and adds it to the history.
+ *
+ * @params {string} username
+ * @params {string} channel
+ * @params {integer} months
+ */
+Sublistener.prototype.acceptSubscription = function (username, channel, months) {
     // Chat reports usernames all lowercase, but the API reports them with proper case.
     username = username.toLowerCase();
 
@@ -172,10 +196,12 @@ Sublistener.prototype.acceptSubscription = function (username, channel) {
 
     var content = {
         name: username,
-        resub: false, //resub not implemented
+        resub: months ? true : false,
         channel: channel,
         ts: Date.now()
     };
+
+    if (months) content.months = months;
 
     // Okay, there's some real funny business going on here.
     // `collection.insert` mutates the original object passed into it, so we have to clone it
