@@ -152,6 +152,7 @@ Sublistener.prototype.isModerator = function(user) {
 };
 
 Sublistener.prototype.isDuplicate = function(username, channel) {
+    username = username.toLowerCase();
     var isDupe = false;
     try {
         isDupe = hist[channel].where({ name: username }).items.length > 0;
@@ -162,6 +163,9 @@ Sublistener.prototype.isDuplicate = function(username, channel) {
 };
 
 Sublistener.prototype.acceptSubscription = function (username, channel) {
+    // Chat reports usernames all lowercase, but the API reports them with proper case.
+    username = username.toLowerCase();
+
     // 2014-01-15: quick and dirty hack to make sure that we only accept subs
     // that are for one of the channels we are listening to
     if (nodecg.bundleConfig['twitch-irc'].channels.indexOf(channel) < 0) return;
