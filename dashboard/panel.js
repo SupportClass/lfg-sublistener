@@ -35,12 +35,12 @@ var button =
         '<span class="sr-only">Close</span>' +
     '</button>';
 
-function addSub(data) {
+function addSub(note) {
     var alert =
-        '<div role="alert" class="alert alert-dismissible ' + (data.resub ? 'bg-primary' : 'alert-info') + ' sub">' +
+        '<div role="alert" class="alert alert-dismissible ' + (note.resub ? 'bg-primary' : 'alert-info') + ' sub">' +
             button +
             '<div style="white-space: pre;">' +
-                '<strong>' + data.name +'</strong>' + (data.resub ? ' - Resub' : '') +
+                '<strong>' + note.name +'</strong>' + (note.resub ? ' - Resub ×' + note.months : '') +
             '</div>' +
         '</div>';
 
@@ -52,7 +52,6 @@ $('#lfg-sublistener_clearall').click(function() {
 });
 
 $reconnect.click(function() {
-    console.log('clicked, disabling');
     $reconnect.prop('disabled', true);
     nodecg.sendMessage('reconnect');
 });
