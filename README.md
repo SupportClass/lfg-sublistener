@@ -5,10 +5,12 @@ Listens to one or many Twitch chat channels via IRC for "subscription" events.
 Upon hearing one, it emits a NodeCG API message that other bundles can listen to and use.
 Also displays recent subscriptions on the dashboard.
 
+If [lfg-twitchapi](https://github.com/SupportClass/lfg-twitchapi) is present, sublistener will also poll the API every 60 seconds to fill in any gaps left by TwitchNotify.
+
 ## Installation
 - Install to `nodecg/bundles/lfg-sublistener`
 - Create `nodecg/cfg/lfg-sublistener.json` with a valid [twitch-irc configuration](https://github.com/Schmoopiie/twitch-irc/wiki#configuration).
-- NOTE: There is a custom boolean parameter called "chatevents". If 'false', chat events will not be hooked, thereby saving CPU and RAM.
+- NOTE: There is a custom boolean parameter called "chatevents". This is used only for testing. When enabled, it lets the broadcaster use `!sendsub <name>` and `!sendsubforce <name>` to simulate subsription events. 
 
 ### Config Example
 ```json
