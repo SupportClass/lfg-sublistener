@@ -2,6 +2,6 @@
   "name": "lfg-sublistener",
   "dependencies": {
     "locallydb": "0.0.5",
-    "twitch-irc": "^1.2.0"
+    "twitch-irc": "^1.2.5"
   }
 }
