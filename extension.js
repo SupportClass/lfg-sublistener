@@ -26,35 +26,46 @@ var Sublistener = function(extensionApi) {
 
     // If lfg-twitchapi is present, set up polling as a backup
     if (nodecg.extensions.hasOwnProperty('lfg-twitchapi')) {
-        var twitchApi = nodecg.extensions['lfg-twitchapi'];
+        if (nodecg.config.login.twitch.scope.split(' ').indexOf('channel_subscriptions') < 0) {
+            nodecg.log.error('lfg-twitchapi found, but the current NodeCG config lacks the "channel_subscriptions" scope.' +
+                ' As a result, lfg-twitchapi will not be loaded.');
+        } else {
+            var twitchApi = nodecg.extensions['lfg-twitchapi'];
+            nodecg.log.info('lfg-twitchapi found, using API polling to augment subscription detection');
 
-        nodecg.log.info('lfg-twitchapi found, using API polling to augment subscription detection');
-
-        // Poll for subs every POLL_INTERVAL milliseconds
-        // If any of the subs returned aren't already in the history, add them.
-        setInterval(function() {
-            twitchApi('GET', '/channels/{{username}}/subscriptions', { limit: MAX_LEN/4, direction: 'desc' },
-                function(err, code, body) {
-                    if (err) {
-                        nodecg.log.error(err);
-                        return;
-                    }
-
-                    if (code !== 200) {
-                        nodecg.log.error(body.error, body.message);
-                        return;
-                    }
-
-                    // Go through subs in reverse, from oldest to newest
-                    body.subscriptions.reverse().forEach(function(subscription) {
-                        var username = subscription.user.name;
-                        var channel = body.channel;
-                        if (!self.isDuplicate(username, channel)) {
-                            self.acceptSubscription(username, channel);
+            // Poll for subs every POLL_INTERVAL milliseconds
+            // If any of the subs returned aren't already in the history, add them.
+            setInterval(function() {
+                twitchApi.get('/channels/{{username}}/subscriptions', { limit: MAX_LEN/4, direction: 'desc' },
+                    function(err, code, body) {
+                        if (err) {
+                            nodecg.log.error(err);
+                            return;
                         }
+
+                        if (code !== 200) {
+                            if (code === 401) {
+                                // We know we are requesting the correct scope, so this error must mean our token expired
+                                twitchApi.destroySession();
+                                nodecg.log.error('Token invalid, destroying session and forcing target user to re-login');
+                            } else {
+                                nodecg.log.error(body.error, body.message);
+                            }
+
+                            return;
+                        }
+
+                        // Go through subs in reverse, from oldest to newest
+                        body.subscriptions.reverse().forEach(function(subscription) {
+                            var username = subscription.user.name;
+                            var channel = body.channel;
+                            if (!self.isDuplicate(username, channel)) {
+                                self.acceptSubscription(username, channel);
+                            }
+                        });
                     });
-                });
-        }, POLL_INTERVAL);
+            }, POLL_INTERVAL);
+        }
     } else {
         nodecg.log.warn('lfg-twitchapi not present, API polling will not be available');
     }
