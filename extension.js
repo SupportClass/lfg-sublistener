@@ -8,7 +8,7 @@ var irc = require('twitch-irc'),
     nodecg = {},
     hist = {};
 
-var MAX_LEN = 200;
+var MAX_LEN = 100;
 var POLL_INTERVAL = 60 * 1000;
 var DBPATH = path.resolve(__dirname, '../../db/lfg-sublistener');
 
@@ -36,7 +36,7 @@ var Sublistener = function(extensionApi) {
             // Poll for subs every POLL_INTERVAL milliseconds
             // If any of the subs returned aren't already in the history, add them.
             setInterval(function() {
-                twitchApi.get('/channels/{{username}}/subscriptions', { limit: MAX_LEN/4, direction: 'desc' },
+                twitchApi.get('/channels/{{username}}/subscriptions', { limit: MAX_LEN/2, direction: 'desc' },
                     function(err, code, body) {
                         if (err) {
                             nodecg.log.error(err);
