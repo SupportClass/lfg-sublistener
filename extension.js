@@ -9,6 +9,16 @@ var Sublistener = function(extensionApi) {
     var self = this;
     nodecg = extensionApi;
 
+    // 2015-4-22: Temporary hack to make lfg-sublistener actually viable in production
+    // If manual garbage collection has been exposed, run it every 30 minutes
+    if (global.gc) {
+        nodecg.log.info('Running manual garbage collection every 30 minutes');
+        setInterval(function() {
+            nodecg.log.info('Running manual garbage collection');
+            global.gc();
+        }, 30 * 60 * 1000);
+    }
+
     // Only start twitch-irc if there are channels to listen to
     if (nodecg.bundleConfig['twitch-irc'] && nodecg.bundleConfig['twitch-irc'].channels.length > 0) {
         var ircListener = require('./extension/irc_listener')(nodecg, self.log);
