@@ -1,6 +1,6 @@
 {
   "name": "lfg-sublistener",
   "dependencies": {
-    "twitch-irc": "^1.2.7"
+    "twitch-irc": "https://github.com/Lange/twitch-irc.git"
   }
 }
