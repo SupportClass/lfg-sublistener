@@ -2,11 +2,8 @@
 
 var hist = {};
 var MAX_LEN = 100;
-
-if (typeof localStorage === 'undefined' || localStorage === null) {
-    var LocalStorage = require('node-localstorage').LocalStorage;
-    var localStorage = new LocalStorage('./db/lfg-sublistener');
-}
+var JSONStorage = require('node-localstorage').JSONStorage;
+var jsonStorage = new JSONStorage('./db/lfg-sublistener');
 
 module.exports = {
     add: function(username, channel, months) {
@@ -15,7 +12,7 @@ module.exports = {
 
         // Make the channel key if it doesn't exist yet
         if (!hist.hasOwnProperty(channel)) {
-            hist[channel] = JSON.parse(localStorage.getItem(channel)) || [];
+            hist[channel] = jsonStorage.getItem(channel) || [];
         }
 
         // Add item to history
@@ -30,7 +27,7 @@ module.exports = {
             items.shift();
         }
 
-        localStorage.setItem(channel, JSON.stringify(hist[channel]));
+        jsonStorage.setItem(channel, hist[channel]);
     },
     exists: function(username, channel, months) {
         username = username.toLowerCase();
