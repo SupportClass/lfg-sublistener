@@ -12,7 +12,7 @@ var Sublistener = function(extensionApi) {
     // 2015-4-22: Temporary hack to make lfg-sublistener actually viable in production
     // If manual garbage collection has been exposed, run it every 15 minutes
     if (global.gc) {
-        nodecg.log.info('Running manual garbage collection every 30 minutes');
+        nodecg.log.info('Running manual garbage collection every 15 minutes');
         setInterval(function() {
             nodecg.log.info('Running manual garbage collection');
             global.gc();
