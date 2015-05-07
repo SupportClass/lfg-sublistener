@@ -14,7 +14,6 @@ var Sublistener = function(extensionApi) {
     if (global.gc) {
         nodecg.log.info('Running manual garbage collection every 15 minutes');
         setInterval(function() {
-            nodecg.log.info('Running manual garbage collection');
             global.gc();
         }, 15 * 60 * 1000);
     }
