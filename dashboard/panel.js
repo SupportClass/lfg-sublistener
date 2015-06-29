@@ -9,11 +9,9 @@ var MAX_LOG_LEN = 30;
 
 nodecg.listenFor('subscription', addSub);
 
-nodecg.declareSyncedVar({
-    name: 'reconnecting',
-    setter: function(newVal) {
-        $reconnect.prop('disabled', newVal);
-    }
+var reconnecting = nodecg.Replicant('reconnecting');
+reconnecting.on('change', function(oldVal, newVal) {
+    $reconnect.prop('disabled', newVal);
 });
 
 nodecg.listenFor('log', function(msg) {
