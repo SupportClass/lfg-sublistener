@@ -33,7 +33,7 @@ var Sublistener = function(extensionApi) {
 
     // If lfg-twitchapi and an appropriate config are present, set up polling
     if (nodecg.extensions.hasOwnProperty('lfg-twitchapi')) {
-        if (nodecg.config.login.twitch.scope.split(' ').indexOf('channel_subscriptions') < 0) {
+        if (nodecg.config.login.twitch.scope.indexOf('channel_subscriptions') < 0) {
             nodecg.log.error('lfg-twitchapi found, but the current NodeCG config lacks the "channel_subscriptions" scope.' +
                 ' As a result, lfg-twitchapi will not be loaded.');
         } else {
