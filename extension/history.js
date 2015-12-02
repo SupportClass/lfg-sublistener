@@ -34,7 +34,10 @@ module.exports = {
         channel = channel.toLowerCase();
 
         var exists = false;
-        if (hist[channel]) {
+        if (!hist.hasOwnProperty(channel)) {
+            hist[channel] = jsonStorage.getItem(channel) || [];
+        }        
+        if (hist[channel].length > 0) {
             if (typeof months !== 'undefined') {
                 exists = hist[channel].some(function(currentValue) {
                     if (currentValue.username === username && currentValue.months === months) return true;
