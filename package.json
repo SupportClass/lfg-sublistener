@@ -1,6 +1,40 @@
 {
   "name": "lfg-sublistener",
+  "version": "2.0.0",
+  "description": "Tells other bundles when someone subscribes. Displays a list of recent subs on your dashboard.",
+  "homepage": "http://supportclass.net/",
+  "scripts": {
+    "test": "npm run static",
+    "static": "eslint extension/**/*.js"
+  },
+  "author": {
+    "name": "Alex Van Camp",
+    "email": "email@alexvan.camp",
+    "url": "http://alexvan.camp"
+  },
+  "files": [
+    "dashboard",
+    "graphics",
+    "extension.js",
+    "extension"
+  ],
+  "keywords": [
+    "twitch",
+    "subscriptions",
+    "subscribers",
+    "nodecg-bundle"
+  ],
+  "nodecg": {
+    "compatibleRange": "~0.7.0"
+  },
   "dependencies": {
-    "twitch-irc": "^1.2.7"
+    "node-localstorage": "^1.1.2",
+    "tmi.js": "0.0.27"
+  },
+  "repository": "https://lange@github.com/SupportClass/lfg-sublistener.git",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^2.0.0",
+    "eslint-config-xo": "^0.11.0"
   }
 }

@@ -9,50 +9,58 @@ If [lfg-twitchapi](https://github.com/SupportClass/lfg-twitchapi) is present, su
 
 ## Installation
 - Install to `nodecg/bundles/lfg-sublistener`
-- Create `nodecg/cfg/lfg-sublistener.json` with a valid [twitch-irc configuration](https://github.com/Schmoopiie/twitch-irc/wiki#configuration).
+- Create `nodecg/cfg/lfg-sublistener.json` with a valid [tmi.js configuration](https://www.tmijs.org/docs/Configuration.html).
 - NOTE: There is a custom boolean parameter called "chatevents". This is used only for testing. When enabled, it lets the broadcaster use `!sendsub <name>` and `!sendsubforce <name>` to simulate subsription events. 
 
 ### Config Example
 ```json
 {
-  "twitch-irc": {
-    "identity": {
-      "username": "YOUR_USERNAME",
-      "password": "oauth:YOUR_OAUTH"
-    },
-    "channels": ["ANY_CHANNEL"]
-  },
-  "chatevents": false
+	"tmi.js": {
+		"connection": {
+			"reconnect": true
+		},
+		"identity": {
+			"username": "YOUR_USERNAME",
+			"password": "oauth:YOUR_OAUTH"
+		},
+		"channels": ["ANY_CHANNEL"]
+	},
+	"chatevents": false
 }
 ```
 
 ## Usage
-### As a dashboard panel
-If you simply want a list of recent subs on your dashboard, you are done.
 
-### In other bundles' view pages and dashboard panels
-If you would like to use this data in another bundle, add the following code to your view/panel:
-```javascript
-nodecg.listenFor('subscription', 'lfg-sublistener', callback);
-```
-... where 'callback' is the name of a function with the signature `function callback(data)`
+First, add `lfg-sublistener` to your bundle's [`nodecg.bundleDependencies`](http://nodecg.com/tutorial-manifest.html).
+This will ensure that `lfg-sublistener` loads before your bundle.
 
-### In other bundles' extensions
-If you want to use subscription events in another bundle's extension,
-add `lfg-sublistener` as a `bundleDependency` in your bundle's [`nodecg.json`](https://github.com/nodecg/nodecg/wiki/nodecg.json)
-
-Then add the following code:
-```javascript
-var sublistener = nodecg.extensions['lfg-sublistener'];
-
-sublistener.on('subscription', function subscription(data) {
+### In a graphic or dashboard panel
+```js
+nodecg.listenFor('subscription', 'lfg-sublistener', function (subscription) {
     // do work
-    // data.name = Twitch username of subscription
-    // data.channel = What channel was subscribed to
-    // data.resub = Boolean, whether or not this is a resub
-    // data.months = If this is a resub, this will be the number of months they have been subscribed for
-    // data.ts = Unix timestamp (in milliseconds)
 });
+```
+
+### In an extension
+```js
+module.exports = function (nodecg) {
+	var sublistener = nodecg.extensions['lfg-sublistener'];
+	
+	sublistener.on('subscription', function subscription(data) {
+		// do work
+	});
+}
+```
+
+## Data Structure
+```js
+{
+	"name": "langeh",
+	"channel": "chrishanel",
+	"resub": true,
+	"months" 3,
+	"timestamp": 1456850909701
+}
 ```
 
 ### License

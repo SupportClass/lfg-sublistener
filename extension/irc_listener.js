@@ -1,91 +1,82 @@
 'use strict';
 
-var irc = require('twitch-irc');
+var chat = require('tmi.js');
 var hist = require('./history.js');
 var EventEmitter = require('events').EventEmitter;
 var emitter = new EventEmitter();
 
 function isBroadcaster(user, channel) {
-    return user.username === channel;
+	return user.username === channel;
 }
 
-module.exports = function(nodecg, logger) {
-    var client = new irc.client(nodecg.bundleConfig['twitch-irc']);
-    var reconnecting = nodecg.Replicant('reconnecting', {
-        defaultValue: false,
-        persistent: false
-    });
+function onSubscription(channel, username, months) {
+	var channelNoPound = channel.replace('#', '');
+	emitter.emit('subscription', username, channelNoPound, months);
+}
 
-    nodecg.listenFor('reconnect', function reconnect() {
-        reconnecting.value = true;
-        client.disconnect();
-        client.connect();
-    });
+module.exports = function (nodecg) {
+	var client = new chat.client(nodecg.bundleConfig['tmi.js']);
+	var reconnecting = nodecg.Replicant('reconnecting', {
+		defaultValue: false,
+		persistent: false
+	});
 
-    function onSubscription(channel, username, months) {
-        var channelNoPound = channel.replace('#', '');
-        emitter.emit('subscription', username, channelNoPound, months);
-    }
+	nodecg.listenFor('reconnect', function reconnect() {
+		reconnecting.value = true;
+		client.disconnect();
+		client.connect();
+	});
 
-    client.connect();
-    client
-        .addListener('connected', function onConnected() {
-            reconnecting.value = false;
-            logger('info', 'Listening for subscribers on ' + nodecg.bundleConfig['twitch-irc'].channels);
-        })
+	client.connect();
 
-        .addListener('disconnected', function onDisconnected(reason) {
-            logger('warn', 'DISCONNECTED: ' + reason);
-        })
+	client.addListener('connected', function onConnected() {
+		reconnecting.value = false;
+		nodecg.log.info('Listening for subscribers on ' + nodecg.bundleConfig['tmi.js'].channels.join(', '));
+	});
 
-        .addListener('reconnect', function onReconnect() {
-            reconnecting.value = true;
-            logger('info', 'Attempting to reconnect...');
-        })
+	client.addListener('disconnected', function onDisconnected(reason) {
+		nodecg.log.warn('DISCONNECTED: ' + reason);
+	});
 
-        .addListener('connectfail', function onConnectFail() {
-            logger('error', 'Failed to connect, reached maximum number of retries');
-        })
+	client.addListener('reconnect', function onReconnect() {
+		reconnecting.value = true;
+		nodecg.log.info('Attempting to reconnect...');
+	});
 
-        .addListener('limitation', function onLimitation(err) {
-            logger('error', err);
-        })
+	client.addListener('subscription', onSubscription);
 
-        .addListener('subscription', onSubscription)
+	client.addListener('subanniversary', onSubscription);
 
-        .addListener('subanniversary', onSubscription)
+	client.addListener('chat', function onChat(channel, user, message) {
+		var channelNoPound = channel.replace('#', '');
+		if (!isBroadcaster(user, channelNoPound)) {
+			return;
+		}
 
-        .addListener('crash', function onCrash(message, stack) {
-            nodecg.log.error('CRASH:', message, '\n\n', stack);
-        });
+		var parts = message.split(' ', 2);
+		var cmd = parts[0];
+		var arg = parts.length > 1 ? parts[1] : null;
 
-    if (nodecg.bundleConfig.chatevents) {
-        nodecg.log.warn('Chat events are on, may cause high CPU usage');
-        client.addListener('chat', function onChat(channel, user, message) {
-            var channelNoPound = channel.replace('#', '');
-            if (!isBroadcaster(user, channelNoPound))
-                return;
+		if (!arg) {
+			return;
+		}
 
-            var parts = message.split(' ',2);
-            var cmd = parts[0];
-            var arg = parts.length > 1 ? parts[1] : null;
+		switch (cmd) {
+			case '!sendsub':
+				if (hist.exists(arg, channelNoPound)) {
+					client.say(channel, 'That username (' + arg + ') appears to be a duplicate. ' +
+						'Use !sendsubforce to override.');
+					break;
+				}
+			/* falls through */
+			case '!sendsubforce':
+				emitter.emit('forcedSubscription', arg, channelNoPound);
+				client.say(channel, 'Added ' + arg + ' as a subscriber');
+				break;
+			default:
+			// Do nothing.
+		}
+	});
 
-            if (!arg) return;
-            switch (cmd) {
-                case '!sendsub':
-                    if (hist.exists(arg, channelNoPound)) {
-                        client.say(channel, 'That username ('+ arg +') appears to be a duplicate. ' +
-                            'Use !sendsubforce to override.');
-                        break;
-                    }
-                    /* falls through */
-                case '!sendsubforce':
-                    emitter.emit('forcedSubscription', arg, channelNoPound);
-                    client.say(channel, 'Added ' + arg + ' as a subscriber');
-                    break;
-            }
-        });
-    }
-
-    return emitter;
+	return emitter;
 };
