@@ -1,7 +1,7 @@
 {
   "name": "lfg-sublistener",
   "version": "2.0.0",
-  "description": "Tells other bundles when someone subscribes. Displays a list of recent subs on your dashboard.",
+  "description": "Tells other bundles when someone subscribes.",
   "homepage": "http://supportclass.net/",
   "scripts": {
     "test": "npm run static",
