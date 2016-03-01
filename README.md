@@ -10,7 +10,6 @@ If [lfg-twitchapi](https://github.com/SupportClass/lfg-twitchapi) is present, su
 ## Installation
 - Install to `nodecg/bundles/lfg-sublistener`
 - Create `nodecg/cfg/lfg-sublistener.json` with a valid [tmi.js configuration](https://www.tmijs.org/docs/Configuration.html).
-- NOTE: There is a custom boolean parameter called "chatevents". This is used only for testing. When enabled, it lets the broadcaster use `!sendsub <name>` and `!sendsubforce <name>` to simulate subsription events. 
 
 ### Config Example
 ```json
@@ -24,8 +23,7 @@ If [lfg-twitchapi](https://github.com/SupportClass/lfg-twitchapi) is present, su
 			"password": "oauth:YOUR_OAUTH"
 		},
 		"channels": ["ANY_CHANNEL"]
-	},
-	"chatevents": false
+	}
 }
 ```
 
