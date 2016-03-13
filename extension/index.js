@@ -49,7 +49,7 @@ module.exports = function (nodecg) {
 	 * Emits a 'subscription' event and adds it to the history.
 	 * @params {string} username
 	 * @params {string} channel
-	 * @params {integer} months
+	 * @params {integer} [months]
 	 */
 	emitter.acceptSubscription = function (username, channel, months) {
 		var content = {

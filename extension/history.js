@@ -10,7 +10,7 @@ module.exports = {
 	 * Adds a subscription event to the history.
 	 * @param username {string}
 	 * @param channel {string}
-	 * @param months {number}
+	 * @param [months] {number}
 	 */
 	add: function (username, channel, months) {
 		username = username.toLowerCase();
