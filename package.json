@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "node-localstorage": "^1.1.2",
-    "tmi.js": "0.0.27"
+    "tmi.js": "0.0.28"
   },
   "repository": "https://lange@github.com/SupportClass/lfg-sublistener.git",
   "license": "MIT",
