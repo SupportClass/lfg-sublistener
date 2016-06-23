@@ -36,7 +36,7 @@ This will ensure that `lfg-sublistener` loads before your bundle.
 
 ### In a graphic or dashboard panel
 ```js
-nodecg.listenFor('subscription', 'lfg-sublistener', function (subscription) {
+nodecg.listenFor('subscription', 'lfg-sublistener', subscription => {
     // do work
 });
 ```
@@ -46,7 +46,7 @@ nodecg.listenFor('subscription', 'lfg-sublistener', function (subscription) {
 module.exports = function (nodecg) {
 	var sublistener = nodecg.extensions['lfg-sublistener'];
 	
-	sublistener.on('subscription', function subscription(data) {
+	sublistener.on('subscription', data => {
 		// do work
 	});
 }
