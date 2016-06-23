@@ -1,3 +1,18 @@
+<a name="3.0.0"></a>
+# [3.0.0](https://github.com/SupportClass/lfg-sublistener/compare/v2.0.1...v3.0.0) (2016-06-23)
+
+
+### Code Refactoring
+
+* port to NodeCG v0.8 ([39d6e97](https://github.com/SupportClass/lfg-sublistener/commit/39d6e97))
+
+
+### BREAKING CHANGES
+
+* no longer supports NodeCG v0.7
+
+
+
 <a name="2.0.1"></a>
 ## [2.0.1](https://github.com/SupportClass/lfg-sublistener/compare/v2.0.0...v2.0.1) (2016-03-13)
 

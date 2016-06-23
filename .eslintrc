@@ -1,11 +1,11 @@
 {
 	"root": true,
-	"extends": "xo",
+	"extends": "xo/esnext",
 	"globals": {
 		"nodecg": true
 	},
 	"rules": {
-		"new-cap": [
+		"babel/new-cap": [
 			2,
 			{
 				"capIsNewExceptions": [

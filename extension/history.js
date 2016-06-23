@@ -1,9 +1,9 @@
 'use strict';
 
-var hist = {};
-var MAX_LEN = 100;
-var JSONStorage = require('node-localstorage').JSONStorage;
-var jsonStorage = new JSONStorage('./db/lfg-sublistener');
+const hist = {};
+const MAX_LEN = 100;
+const JSONStorage = require('node-localstorage').JSONStorage;
+const jsonStorage = new JSONStorage('./db/lfg-sublistener');
 
 module.exports = {
 	/**
@@ -12,23 +12,23 @@ module.exports = {
 	 * @param channel {string}
 	 * @param [months] {number}
 	 */
-	add: function (username, channel, months) {
+	add(username, channel, months) {
 		username = username.toLowerCase();
 		channel = channel.toLowerCase();
 
 		// Make the channel key if it doesn't exist yet
-		if (!hist.hasOwnProperty(channel)) {
+		if (!{}.hasOwnProperty.call(hist, channel)) {
 			hist[channel] = jsonStorage.getItem(channel) || [];
 		}
 
 		// Add item to history
 		hist[channel].push({
-			username: username,
-			months: months
+			username,
+			months
 		});
 
 		// Maintain a reasonable max length for the history
-		var items = hist[channel];
+		const items = hist[channel];
 		while (items.length > MAX_LEN) { // If we have more than MAX_LEN items, remove the oldest items
 			items.shift();
 		}
@@ -44,23 +44,23 @@ module.exports = {
 	 * @param months {number}
 	 * @returns {boolean}
 	 */
-	exists: function (username, channel, months) {
+	exists(username, channel, months) {
 		username = username.toLowerCase();
 		channel = channel.toLowerCase();
 
-		var exists = false;
+		let exists = false;
 
-		if (!hist.hasOwnProperty(channel)) {
+		if (!{}.hasOwnProperty.call(hist, channel)) {
 			hist[channel] = jsonStorage.getItem(channel) || [];
 		}
 
 		if (hist[channel].length > 0) {
 			if (typeof months === 'undefined') {
-				exists = hist[channel].some(function (currentValue) {
+				exists = hist[channel].some(currentValue => {
 					return currentValue.username === username;
 				});
 			} else {
-				exists = hist[channel].some(function (currentValue) {
+				exists = hist[channel].some(currentValue => {
 					return currentValue.username === username && currentValue.months === months;
 				});
 			}
@@ -69,5 +69,5 @@ module.exports = {
 		return exists;
 	},
 
-	MAX_LEN: MAX_LEN
+	MAX_LEN
 };

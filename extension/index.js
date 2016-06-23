@@ -1,39 +1,39 @@
 'use strict';
 
-var server = require('../../../lib/server');
-var EventEmitter = require('events');
-var hist = require('./history.js');
+const server = require('../../../lib/server');
+const EventEmitter = require('events');
+const hist = require('./history.js');
 
 module.exports = function (nodecg) {
-	var emitter = new EventEmitter();
+	const emitter = new EventEmitter();
 
 	// Only start tmi.js if there are channels to listen to
 	if (nodecg.bundleConfig['tmi.js'] && nodecg.bundleConfig['tmi.js'].channels.length > 0) {
-		var ircListener = require('./irc_listener')(nodecg);
+		const ircListener = require('./irc_listener')(nodecg);
 
-		ircListener.on('subscription', function (username, channel, months) {
+		ircListener.on('subscription', (username, channel, months) => {
 			if (!hist.exists(username, channel, months)) {
 				emitter.acceptSubscription(username, channel, months);
 			}
 		});
 
-		ircListener.on('forcedSubscription', function (username, channel, months) {
+		ircListener.on('forcedSubscription', (username, channel, months) => {
 			emitter.acceptSubscription(username, channel, months);
 		});
 	}
 
 	// If lfg-twitchapi and an appropriate config are present, set up polling
-	server.on('extensionsLoaded', function () {
-		if (nodecg.extensions.hasOwnProperty('lfg-twitchapi')) {
+	server.on('extensionsLoaded', () => {
+		if ({}.hasOwnProperty.call(nodecg.extensions, 'lfg-twitchapi')) {
 			if (nodecg.config.login.twitch.scope.split(' ').indexOf('channel_subscriptions') < 0) {
 				nodecg.log.error('lfg-twitchapi found, but the current NodeCG config lacks the' +
 					' "channel_subscriptions" scope. As a result, Twitch API polling for new subs will be disabled.');
 			} else {
-				var apiPoller = require('./api_poller')(nodecg);
-				apiPoller.on('gotSubscriptions', function (channel, subscriptions) {
+				const apiPoller = require('./api_poller')(nodecg);
+				apiPoller.on('gotSubscriptions', (channel, subscriptions) => {
 					// Go through subs in reverse, from oldest to newest
-					subscriptions.reverse().forEach(function (subscription) {
-						var username = subscription.user.name;
+					subscriptions.reverse().forEach(subscription => {
+						const username = subscription.user.name;
 						if (!hist.exists(username, channel)) {
 							emitter.acceptSubscription(username, channel);
 						}
@@ -52,10 +52,10 @@ module.exports = function (nodecg) {
 	 * @params {integer} [months]
 	 */
 	emitter.acceptSubscription = function (username, channel, months) {
-		var content = {
+		const content = {
 			name: username,
 			resub: Boolean(months),
-			channel: channel,
+			channel,
 			timestamp: Date.now()
 		};
 
