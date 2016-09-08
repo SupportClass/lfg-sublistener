@@ -7,10 +7,11 @@ Also displays recent subscriptions on the dashboard.
 
 If [lfg-twitchapi](https://github.com/SupportClass/lfg-twitchapi) is present, sublistener will also poll the API every 60 seconds to fill in any gaps left by TwitchNotify.
 
-This bundle integrates with [`lfg-nucleus`](https://github.com/SupportClass/lfg-nucleus).
+This bundle integrates with [lfg-nucleus](https://github.com/SupportClass/lfg-nucleus).
 
 ## Installation
 - Install to `nodecg/bundles/lfg-sublistener`
+	- If [nodecg-cli](https://www.npmjs.com/package/nodecg-cli) is installed use `nodecg install SupportClass/lfg-sublistener`
 - Create `nodecg/cfg/lfg-sublistener.json` with a valid [tmi.js configuration](https://www.tmijs.org/docs/Configuration.html).
 
 ### Config Example
