@@ -60,7 +60,8 @@ module.exports = function (nodecg) {
 	"channel": "chrishanel",
 	"resub": true,
 	"months" 3,
-	"timestamp": 1456850909701
+	"timestamp": 1456850909701,
+	"prime": false
 }
 ```
 

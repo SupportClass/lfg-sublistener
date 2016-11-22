@@ -9,11 +9,6 @@ function isBroadcaster(user, channel) {
 	return user.username === channel;
 }
 
-function onSubscription(channel, username, months) {
-	const channelNoPound = channel.replace('#', '');
-	emitter.emit('subscription', username, channelNoPound, months);
-}
-
 module.exports = function (nodecg) {
 	const client = new chat.client(nodecg.bundleConfig['tmi.js']);
 	const reconnecting = nodecg.Replicant('reconnecting', {
@@ -43,9 +38,16 @@ module.exports = function (nodecg) {
 		nodecg.log.info('Attempting to reconnect...');
 	});
 
-	client.addListener('subscription', onSubscription);
+	// `extra` is an object that currently has just one bool property, "prime", that represents if this is a Prime sub.
+	client.addListener('subscription', (channel, username, extra) => {
+		const channelNoPound = channel.replace('#', '');
+		emitter.emit('subscription', username, channelNoPound, 1, extra);
+	});
 
-	client.addListener('resub', onSubscription);
+	client.addListener('resub', (channel, username, months) => {
+		const channelNoPound = channel.replace('#', '');
+		emitter.emit('subscription', username, channelNoPound, parseInt(months, 10));
+	});
 
 	client.addListener('chat', (channel, user, message) => {
 		const channelNoPound = channel.replace('#', '');

@@ -11,9 +11,9 @@ module.exports = function (nodecg) {
 	if (nodecg.bundleConfig['tmi.js'] && nodecg.bundleConfig['tmi.js'].channels.length > 0) {
 		const ircListener = require('./irc_listener')(nodecg);
 
-		ircListener.on('subscription', (username, channel, months) => {
+		ircListener.on('subscription', (username, channel, months, extra) => {
 			if (!hist.exists(username, channel, months)) {
-				emitter.acceptSubscription(username, channel, months);
+				emitter.acceptSubscription(username, channel, months, extra);
 			}
 		});
 
@@ -50,18 +50,17 @@ module.exports = function (nodecg) {
 	 * @params {string} username
 	 * @params {string} channel
 	 * @params {integer} [months]
+	 * @params {object} [extra]
 	 */
-	emitter.acceptSubscription = function (username, channel, months) {
+	emitter.acceptSubscription = function (username, channel, months, extra = {}) {
 		const content = {
 			name: username,
 			resub: Boolean(months),
 			channel,
-			timestamp: Date.now()
+			timestamp: Date.now(),
+			prime: Boolean(extra.prime),
+			months: parseInt(months, 10)
 		};
-
-		if (months) {
-			content.months = months;
-		}
 
 		nodecg.sendMessage('subscription', content);
 		emitter.emit('subscription', content);
