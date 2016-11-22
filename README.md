@@ -1,4 +1,4 @@
-#lfg-sublistener
+#lfg-sublistener [![Build Status](https://travis-ci.org/SupportClass/lfg-sublistener.svg?branch=master)](https://travis-ci.org/SupportClass/lfg-sublistener)
 This is a [NodeCG](http://github.com/nodecg/nodecg) bundle.
 
 Listens to one or many Twitch chat channels via IRC for "subscription" events.

@@ -1,6 +1,6 @@
 {
   "name": "lfg-sublistener",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Tells other bundles when someone subscribes.",
   "homepage": "http://supportclass.net/",
   "scripts": {

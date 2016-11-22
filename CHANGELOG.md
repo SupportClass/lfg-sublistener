@@ -1,3 +1,13 @@
+<a name="3.1.0"></a>
+# [3.1.0](https://github.com/SupportClass/lfg-sublistener/compare/v3.0.0...v3.1.0) (2016-11-22)
+
+
+### Features
+
+* add support for Prime subs ([941ed8e](https://github.com/SupportClass/lfg-sublistener/commit/941ed8e))
+
+
+
 <a name="3.0.0"></a>
 # [3.0.0](https://github.com/SupportClass/lfg-sublistener/compare/v2.0.1...v3.0.0) (2016-06-23)
 
