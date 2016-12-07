@@ -53,13 +53,15 @@ module.exports = function (nodecg) {
 	 * @params {object} [extra]
 	 */
 	emitter.acceptSubscription = function (username, channel, months, extra = {}) {
+		months = parseInt(months, 10);
+		
 		const content = {
 			name: username,
-			resub: Boolean(months),
+			resub: months > 1,
 			channel,
 			timestamp: Date.now(),
 			prime: Boolean(extra.prime),
-			months: parseInt(months, 10)
+			months
 		};
 
 		nodecg.sendMessage('subscription', content);
