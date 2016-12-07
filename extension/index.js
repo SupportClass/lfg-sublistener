@@ -54,7 +54,7 @@ module.exports = function (nodecg) {
 	 */
 	emitter.acceptSubscription = function (username, channel, months, extra = {}) {
 		months = parseInt(months, 10);
-		
+
 		const content = {
 			name: username,
 			resub: months > 1,
